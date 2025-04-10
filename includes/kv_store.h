@@ -39,6 +39,7 @@ void			kv_delete(t_kv_pair **table, const char *key);
 void			kv_list(t_kv_pair **table);
 void			kv_save_to_file(t_kv_pair **table, const char *filename);
 void 			kv_load_from_file(t_kv_pair **table, const char *filename);
+void 			print_table(t_kv_pair **table);
 
 void			run_cli(t_kv_pair **table);
 void			exec_cmd(t_kv_pair **table, int argc, char **argv);

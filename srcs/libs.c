@@ -1,4 +1,21 @@
 #include "kv_store.h"
+#include "kv_error.h"
+
+const char *error_messages[] = {
+    "OK.",
+    "Error: Key already exists. Value will be updated.",
+    "Error: Failed to allocate memory for key-value pair.",
+    "Error: Invalid key or value format.",
+    "Error: Key not found.",
+    "Error: Unable to open file for saving data.",
+    "Error: Failed to write data to file.",
+    "Error: Unable to open file for loading data.",
+    "Error: Invalid file format. Unable to parse key-value pairs.",
+    "Error: Invalid command. Type 'help' for a list of available commands.",
+    "Error: Failed to save data to file before exit.",
+    "Error: An unexpected error occurred during exit. Data may not have been saved.",
+    "Error: Incorrect usage of the command. Use 'help' to see the correct syntax."
+};
 
 void	fn_putstr(const char *str)
 {
@@ -12,9 +29,19 @@ void	fn_putstr(const char *str)
 void	fn_write_error(const char *error)
 {
     while (*error)
-        write(2, error, 1);
+    {
+		write(2, error, 1);
 		error++;
+	}
 	write(2, "\n", 1);
+}
+
+void    log_error(int code)
+{
+    if (code >= 0 && code < 13)
+		fn_write_error(error_messages[code]);
+    else
+		fn_write_error("Error.");
 }
 
 int	fn_strlen(const char *str)

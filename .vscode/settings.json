@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "kv_store.h": "c",
-        "string.h": "c"
+        "string.h": "c",
+        "kv_error.h": "c"
     }
 }
