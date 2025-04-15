@@ -1,51 +1,21 @@
 #include "kv_store.h"
-#include "kv_error.h"
 
-const char *error_messages[] = {
-    "OK.",
-    "Error: Key already exists. Value will be updated.",
-    "Error: Failed to allocate memory for key-value pair.",
-    "Error: Invalid key or value format.",
-    "Error: Key not found.",
-    "Error: Unable to open file for saving data.",
-    "Error: Failed to write data to file.",
-    "Error: Unable to open file for loading data.",
-    "Error: Invalid file format. Unable to parse key-value pairs.",
-    "Error: Invalid command. Type 'help' for a list of available commands.",
-    "Error: Failed to save data to file before exit.",
-    "Error: An unexpected error occurred during exit. Data may not have been saved.",
-    "Error: Incorrect usage of the command. Use 'help' to see the correct syntax.",
-};
-
-void	fn_putstr(const char *str)
+void	ft_putstr(int fd, const char *str)
 {
 	int	i;
 
 	i = -1;
 	while (str[++i])
-		write(1, &str[i], 1);
+		write(fd, &str[i], 1);
 }
 
-void	fn_write_error(const char *error)
+void    logger(int fd, char *content)
 {
-	if (!error) return ;
-    while (*error)
-    {
-		write(2, error, 1);
-		error++;
-	}
-	write(2, "\n", 1);
+	ft_putstr(fd, content);
+	ft_putstr(fd, "\n");
 }
 
-void    logger(int code)
-{
-    if (code >= 0 && code < 13)
-		fn_write_error(error_messages[code]);
-    else
-		fn_write_error("Error.");
-}
-
-int	fn_strlen(const char *str)
+int	ft_strlen(const char *str)
 {
     int i;
 
@@ -55,7 +25,7 @@ int	fn_strlen(const char *str)
     return (i);
 }
 
-char	*fn_strncpy(char *dest, char *src, unsigned int n)
+char	*ft_strncpy(char *dest, char *src, unsigned int n)
 {
 	unsigned int	i;
 
@@ -73,7 +43,7 @@ char	*fn_strncpy(char *dest, char *src, unsigned int n)
 	return (dest);
 }
 
-int	fn_strcmp(char *s1, char *s2)
+int	ft_strcmp(char *s1, char *s2)
 {
 	int	i;
 
@@ -81,13 +51,6 @@ int	fn_strcmp(char *s1, char *s2)
 	while (s1[i] && s1[i] == s2[i])
 		i++;
 	return (s1[i] - s2[i]);
-}
-
-int	is_space(char c)
-{
-	if (c == ' ' || c == '\f' || c == '\n' || c == '\r' || c == '\t' || c == '\v')
-		return (1);
-	return (0);
 }
 
 int count_words(char *str)
@@ -125,14 +88,14 @@ void	read_file_into_buffer(const char *filename, char **content)
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 	{
-		fn_write_error("Error opening file");
+		logger(1, ERROR_FILE_OPEN);
 		return ;
 	}
 	buffer_capacity = 1024;
 	*content = (char *)malloc(buffer_capacity);
 	if (*content == NULL)
 	{
-		fn_write_error("Memory allocation failed");
+		logger(1, ERROR_MEMORY_ALLOCATION);
 		close(fd);
 		return ;
 	}
@@ -145,7 +108,7 @@ void	read_file_into_buffer(const char *filename, char **content)
 			temp = (char *)realloc(*content, buffer_capacity);
 			if (!temp)
 			{
-				fn_write_error("Error reallocation memory");
+				logger(1, "Error: Failed to reallocate memory.");
 				free(*content);
 				close(fd);
 				return ;
@@ -157,7 +120,7 @@ void	read_file_into_buffer(const char *filename, char **content)
 	}
 	if (bytes_read < 0)
 	{
-		fn_write_error("Error reading file");
+		logger(1, ERROR_FILE_READ);
 		free(*content);
 		close(fd);
 		return ;
@@ -173,5 +136,5 @@ void	read_file_into_buffer(const char *filename, char **content)
 	// (*content)[buffer_size] = '\n';
 	// (*content)[buffer_size + 1] = '\0';
 	if (close(fd) < 0)
-		fn_write_error("Error closing file");
+		logger(1,ERROR_FILE_CLOSE);
 }

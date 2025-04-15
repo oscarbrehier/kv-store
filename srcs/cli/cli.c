@@ -112,7 +112,7 @@ void run_cli(t_kv_pair **table)
 		read_input(&input);
 		if (!input)
 		{
-			fn_putstr("Error reading input\n");
+			logger(1, "Error");
 			continue;
 		}
 		argc = parse_input(input, &argv);
@@ -130,7 +130,7 @@ void run_cli(t_kv_pair **table)
 			argv = NULL;
 			continue;
 		}
-		if (fn_strcmp(argv[0], "exit") == 0)
+		if (ft_strcmp(argv[0], "exit") == 0)
 		{
 			free(input);
 			i = 0;

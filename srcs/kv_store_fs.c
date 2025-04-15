@@ -1,14 +1,13 @@
 #include "kv_store.h"
-#include "kv_error.h"
 
 int	write_header(int fd)
 {
 	int header_len;
 
-	header_len = fn_strlen(FILE_HEADER);
+	header_len = ft_strlen(FILE_HEADER);
 	if (write(fd, FILE_HEADER, header_len) != (ssize_t)header_len)
 	{
-		logger(ERROR_FILE_WRITE);
+		logger(1, ERROR_FILE_WRITE);
 		close(fd);
 		return 0;
 	}
@@ -28,7 +27,7 @@ void	kv_save_file(t_kv_pair **table, const char *filename)
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd < 0)
 	{
-		logger(ERROR_FILE_OPEN);
+		logger(1, ERROR_FILE_OPEN);
 		return;
 	}
 	if (!(write_header(fd)))
@@ -38,36 +37,29 @@ void	kv_save_file(t_kv_pair **table, const char *filename)
 		current = table[i];
 		while (current != NULL)
 		{
-			// content = kv_format_str(current->key, current->value);
-			// if (!content)
-			// {
-			// 	fn_write_error("Memory allocation failed");
-			// 	close(fd);
-			// 	return;
-			// }
-			key_len = fn_strlen(current->key);
-			val_len = fn_strlen(current->value);
+			key_len = ft_strlen(current->key);
+			val_len = ft_strlen(current->value);
 			if (write(fd, &key_len, sizeof(uint32_t)) != sizeof(uint32_t))
 			{
-				logger(ERROR_FILE_WRITE);
+				logger(1, ERROR_FILE_WRITE);
 				close(fd);
 				return;
 			}
 			if (write(fd, current->key, key_len) != (ssize_t)key_len)
 			{
-				logger(ERROR_FILE_WRITE);
+				logger(1, ERROR_FILE_WRITE);
 				close(fd);
 				return;
 			}
 			if (write(fd, &val_len, sizeof(uint32_t)) != sizeof(uint32_t))
 			{
-				logger(ERROR_FILE_WRITE);
+				logger(1, ERROR_FILE_WRITE);
 				close(fd);
 				return;
 			}
 			if (write(fd, current->value, val_len) != (ssize_t)val_len)
 			{
-				logger(ERROR_FILE_WRITE);
+				logger(1, ERROR_FILE_WRITE);
 				close(fd);
 				return;
 			}
@@ -76,7 +68,7 @@ void	kv_save_file(t_kv_pair **table, const char *filename)
 		}
 		i++;
 	}
-	logger(SUCCESS);
+	logger(2, SUCCESS);
 	close(fd);
 };
 
@@ -92,12 +84,12 @@ void	kv_load_file(t_kv_pair **table, const char *filename)
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 	{
-		logger(ERROR_FILE_READ);
+		logger(1, ERROR_FILE_READ);
 		return ;
 	}
 	if (read(fd, header, 4) != 4 || memcmp(header, FILE_HEADER, 4) != 0)
 	{
-		fn_write_error("Error: Invalid file header");
+		logger(1, ERROR_FILE_HEADER);
 		close (fd);
 		return ;
 	}
@@ -106,33 +98,33 @@ void	kv_load_file(t_kv_pair **table, const char *filename)
 		key = malloc(key_len + 1);
 		if (!key)
 		{
-			logger(ERROR_MEMORY_ALLOCATION);
+			logger(1, ERROR_MEMORY_ALLOCATION);
 			close(fd);
 			return ;
 		}
 		if (read(fd, key, key_len) != (ssize_t)key_len)
 		{
-			fn_write_error("Error : Failed to read key from file");
+			logger(1, "Error : Failed to read key from file.");
 			close(fd);
 			return ;
 		}
 		key[key_len] = '\0';
 		if (read(fd, &val_len, sizeof(uint32_t)) != sizeof(uint32_t))
 		{
-			fn_write_error("Error: Failed to read value length from file");
+			logger(1, "Error: Failed to read value length from file.");
 			close(fd);
 			return ;
 		}
 		val = malloc(val_len + 1);
 		if (!val)
 		{
-			logger(ERROR_MEMORY_ALLOCATION);
+			logger(1, ERROR_MEMORY_ALLOCATION);
 			close(fd);
 			return ;
 		}
 		if (read(fd, val, val_len) != (ssize_t)val_len)
 		{
-			fn_write_error("Error: Failed to read value from file");
+			logger(1, "Error: Failed to read value from file.");
 			close(fd);
 			return ;
 		}
@@ -142,5 +134,5 @@ void	kv_load_file(t_kv_pair **table, const char *filename)
 		free(val);
 	}
 	close(fd);
-	logger(SUCCESS);
+	logger(2, SUCCESS);
 }

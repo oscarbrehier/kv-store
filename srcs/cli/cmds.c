@@ -4,8 +4,13 @@ void	handle_set(t_kv_pair **table, int argc, char **argv)
 {
 	if (argc != 3)
 	{
-		fn_putstr("Usage: set <key> <value>\n");
+		logger(2, "Usage: set <key> <value>");
 		return;
+	}
+	if (!is_valid_key(argv[1]))
+	{
+		logger(2, "Error: Key contains illegal characters");
+		return ;
 	}
 	kv_set(table, argv[1], argv[2]);
 }
@@ -16,7 +21,7 @@ void	handle_get(t_kv_pair **table, int argc, char **argv)
 
 	if (argc != 2)
 	{
-		fn_putstr("Usage: get <key>\n");
+		logger(2, "Usage: get <key>\n");
 		return;
 	}
 	res = kv_get(table, argv[1]);
@@ -28,7 +33,7 @@ void	handle_delete(t_kv_pair **table, int argc, char **argv)
 {
 	if (argc != 2)
 	{
-		fn_putstr("Usage: delete <key>\n");
+		logger(2, "Usage: delete <key>");
 		return;
 	}
 	kv_delete(table, argv[1]);
@@ -45,7 +50,7 @@ void 	handle_save(t_kv_pair **table, int argc, char **argv)
 {
 	if (argc != 2)
 	{
-		fn_putstr("Usage: save <filename>\n");
+		logger(2, "Usage: save <filename>");
 		return ;
 	}
 	kv_save_file(table, argv[1]);
@@ -55,7 +60,7 @@ void	handle_load(t_kv_pair **table, int argc, char **argv)
 {
 	if (argc != 2)
 	{
-		fn_putstr("Usage: save <filename>\n");
+		logger(2, "Usage: save <filename>");
 		return ;
 	}
 	kv_load_file(table, argv[1]);
@@ -76,7 +81,7 @@ void	exec_cmd(t_kv_pair **table, int argc, char **argv)
 	i = 0;
 	while (i < sizeof(commands) / sizeof(commands[0]))
 	{
-		if (fn_strcmp(argv[0], commands[i].cmd) == 0)
+		if (ft_strcmp(argv[0], commands[i].cmd) == 0)
 		{
 			commands[i].handler(table, argc, argv);
 			return;

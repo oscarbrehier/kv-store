@@ -1,5 +1,4 @@
 #include "kv_store.h"
-#include "kv_error.h"
 
 unsigned int hash(const char *key)
 {
@@ -28,7 +27,7 @@ void	kv_set(t_kv_pair **table, const char *key, const char *value)
 		{
 			strncpy(current->value, value, sizeof(current->value) - 1);
 			current->value[sizeof(current->value) - 1] = '\0';
-			logger(ERROR_KEY_EXISTS);
+			logger(1, ERROR_KEY_EXISTS);
 			return ;
 		}
 		current = current->next;
@@ -36,7 +35,7 @@ void	kv_set(t_kv_pair **table, const char *key, const char *value)
 	new_pair = malloc(sizeof(t_kv_pair));
 	if (!new_pair)
 	{
-		logger(ERROR_MEMORY_ALLOCATION);
+		logger(1, ERROR_MEMORY_ALLOCATION);
 		return ;
 	}
 	strncpy(new_pair->key, key, sizeof(new_pair->key) - 1);
@@ -45,7 +44,7 @@ void	kv_set(t_kv_pair **table, const char *key, const char *value)
 	new_pair->value[sizeof(new_pair->value) - 1] = '\0';
 	new_pair->next = table[index];
 	table[index] = new_pair;
-	logger(SUCCESS);
+	logger(2, SUCCESS);
 }
 
 const char *kv_get(t_kv_pair **table, const char *key)
@@ -56,7 +55,7 @@ const char *kv_get(t_kv_pair **table, const char *key)
 	index = hash(key);
 	if (table[index] == NULL)
 	{
-		logger(ERROR_MEMORY_ALLOCATION);
+		logger(1, ERROR_MEMORY_ALLOCATION);
 		return (NULL);
 	}
 	current = table[index];
@@ -66,7 +65,7 @@ const char *kv_get(t_kv_pair **table, const char *key)
 			return (current->value);
 		current = current->next;
 	}
-	logger(ERROR_KEY_NOT_FOUND);
+	logger(1, ERROR_KEY_NOT_FOUND);
 	return (NULL);
 };
 
@@ -79,7 +78,7 @@ void	kv_delete(t_kv_pair **table, const char *key)
 	index = hash(key);
 	if (table[index] == NULL)
 	{
-		logger(ERROR_KEY_NOT_FOUND);
+		logger(1, ERROR_KEY_NOT_FOUND);
 		return ;
 	}
 	current = table[index];
@@ -93,13 +92,13 @@ void	kv_delete(t_kv_pair **table, const char *key)
 			else
 				previous = current->next;
 			free(current);
-			logger(SUCCESS);
+			logger(2,SUCCESS);
 			return ;
 		}
 		previous = current;
 		current = current->next;
 	}
-	logger(ERROR_KEY_NOT_FOUND);
+	logger(1, ERROR_KEY_NOT_FOUND);
 };
 
 void	kv_list(t_kv_pair **table)
