@@ -1,233 +1,146 @@
 #include "kv_store.h"
+#include "kv_error.h"
 
-int kv_formatted_length(const char *key, const char *value)
+int	write_header(int fd)
 {
-	return (fn_strlen(key) + fn_strlen(value) + 3);
+	int header_len;
+
+	header_len = fn_strlen(FILE_HEADER);
+	if (write(fd, FILE_HEADER, header_len) != (ssize_t)header_len)
+	{
+		logger(ERROR_FILE_WRITE);
+		close(fd);
+		return 0;
+	}
+	return (1);
 }
 
-char *kv_format_str(const char *key, const char *value)
-{
-	char *str;
-	char *ptr;
-	size_t len;
-	size_t len_key;
-	size_t len_value;
-
-	len = kv_formatted_length(key, value) + 1;
-	len_key = fn_strlen(key);
-	len_value = fn_strlen(value);
-	str = malloc(sizeof(char) * len);
-	if (!str)
-		return (NULL);
-	ptr = str;
-	ptr = memcpy(ptr, key, len_key) + len_key;
-	ptr = memcpy(ptr, ": ", 2) + 2;
-	ptr = memcpy(ptr, value, len_value) + len_value;
-	*ptr = '\n';
-	ptr++;
-	*ptr = '\0';
-	return (str);
-}
-
-void kv_save_to_file(t_kv_pair **table, const char *filename)
+void	kv_save_file(t_kv_pair **table, const char *filename)
 {
 	int i;
 	int fd;
-	ssize_t length;
+	uint32_t key_len;
+	uint32_t val_len;
 	t_kv_pair *current;
-	char *content;
+	// char *content;
 
 	i = 0;
-	fd = open(filename, O_WRONLY | O_CREAT, 0644);
+	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd < 0)
 	{
-		fn_write_error("Error opening file");
+		logger(ERROR_FILE_OPEN);
 		return;
 	}
+	if (!(write_header(fd)))
+		return ;
 	while (i < TABLE_SIZE)
 	{
 		current = table[i];
 		while (current != NULL)
 		{
-			content = kv_format_str(current->key, current->value);
-			if (!content)
+			// content = kv_format_str(current->key, current->value);
+			// if (!content)
+			// {
+			// 	fn_write_error("Memory allocation failed");
+			// 	close(fd);
+			// 	return;
+			// }
+			key_len = fn_strlen(current->key);
+			val_len = fn_strlen(current->value);
+			if (write(fd, &key_len, sizeof(uint32_t)) != sizeof(uint32_t))
 			{
-				fn_write_error("Memory allocation failed");
+				logger(ERROR_FILE_WRITE);
 				close(fd);
 				return;
 			}
-			length = fn_strlen(content);
-			if (write(fd, content, length) != length)
+			if (write(fd, current->key, key_len) != (ssize_t)key_len)
 			{
-				fn_write_error("Error writing to file");
-				free(content);
+				logger(ERROR_FILE_WRITE);
 				close(fd);
 				return;
 			}
-			free(content);
+			if (write(fd, &val_len, sizeof(uint32_t)) != sizeof(uint32_t))
+			{
+				logger(ERROR_FILE_WRITE);
+				close(fd);
+				return;
+			}
+			if (write(fd, current->value, val_len) != (ssize_t)val_len)
+			{
+				logger(ERROR_FILE_WRITE);
+				close(fd);
+				return;
+			}
+			// free(content);
 			current = current->next;
 		}
 		i++;
 	}
+	logger(SUCCESS);
 	close(fd);
 };
 
-int get_line_length(const char *content, int start)
+void	kv_load_file(t_kv_pair **table, const char *filename)
 {
-	int len;
-	int i;
+	int			fd;
+	uint32_t	key_len;
+	uint32_t	val_len;
+	char		*key;
+	char		*val;
+	char		header[4];
 
-	len = 0;
-	i = start;
-	while (content[i] && content[i] != '\n')
+	fd = open(filename, O_RDONLY);
+	if (fd < 0)
 	{
-		len++;
-		i++;
+		logger(ERROR_FILE_READ);
+		return ;
 	}
-	return (len);
-}
-
-int get_key_len(const char *fc, int index)
-{
-	int i;
-	int len;
-
-	i = index;
-	len = 0;
-	while (fc[i] && fc[i] != ':' && fc[i] != '\n')
+	if (read(fd, header, 4) != 4 || memcmp(header, FILE_HEADER, 4) != 0)
 	{
-		if ((fc[i] & 0xC0) != 0x80)
-			len++;
-		i++;
+		fn_write_error("Error: Invalid file header");
+		close (fd);
+		return ;
 	}
-	return (len);
-}
-
-int get_value_len(const char *fc, int index)	
-{
-	int i;
-	int len;
-
-	i = index;
-	len = 0;
-	if (!fc)
-		return (0);
-	while (fc[i] != '\0' && fc[i] != '\n')
+	while (read(fd, &key_len, sizeof(uint32_t)) == sizeof(uint32_t))
 	{
-		if ((fc[i] & 0xC0) != 0x80)
-			len++;
-		i++;
-	}
-	return (len);
-}
-
-int is_valid_kv_line(char *fc, int index)
-{
-    int i;
-
-    i = index;
-
-    // No spaces allowed before the key
-    if (is_space(fc[i]))
-		return (0);
-
-    // If the key is empty or there is a colon right away, it's invalid
-    if (fc[i] == ':' || fc[i] == '\0' || fc[i] == '\n') {
-        return 0;
-    }
-
-    // Move until you hit the colon, if space in key return 0
-    while (fc[i] && fc[i] != ':' && fc[i] != '\n') {
-        if (is_space(fc[i]))
-			return (0);
-		i++;
-    }
-
-    // If no colon is found, it's an invalid line
-    if (fc[i] != ':') {
-        return 0;
-    }
-
-    // Ensure no spaces before colon in the key
-    if (i == index) {
-        return 0;
-    }
-
-    // Skip spaces after the colon
-    i++;
-    while (fc[i] == ' ') i++;
-
-    // If there's no value after the colon, it's invalid
-    if (fc[i] == '\0' || fc[i] == '\n') {
-        return 0;
-    }
-
-    // If we reached here, the line is valid
-    return 1;
-}
-
-int parse_kv_from_line(char *fc, int index, char **key, char **value)
-{
-	int key_len;
-	int val_len;
-
-	key_len = get_key_len(fc, index);
-	val_len = get_value_len(fc, index + key_len + 1);
-
-	*key = malloc(sizeof(char) * (key_len + 2));
-	*value = malloc(sizeof(char) * (val_len + 2));
-	if (!*key || !*value || !is_valid_kv_line(fc, index))
-	{
-		free(*key);
-		free(*value);
-		return (1);
-	}
-	int i = index;
-	int	j = 0;
-	while (fc[i] && fc[i] != ':' && fc[i] != '\n')
-	{
-		(*key)[j] = fc[i];
-		j++;
-		i++;
-	}
-	(*key)[j] = '\0';
-	i++;
-	j = 0;
-	while (fc[i] && fc[i] != '\n')
-	{
-		(*value)[j] = fc[i];
-		j++;
-		i++;
-	}
-	(*value)[j] = '\0';
-	return (0);
-}
-
-void kv_load_from_file(t_kv_pair **table, const char *filename)
-{
-	char *fc;
-	int i;
-	char *key = NULL;
-	char *value = NULL;
-
-	read_file_into_buffer(filename, &fc);
-	if (fc == NULL)
-	{
-		fn_write_error("Failed to read file into buffer.\n");
-		return;
-	}
-	i = 0;
-	while (fc[i])
-	{
-		if (parse_kv_from_line(fc, i, &key, &value) == 0)
+		key = malloc(key_len + 1);
+		if (!key)
 		{
-			kv_set(table, key, value);
-			free(key);
-			free(value);
+			logger(ERROR_MEMORY_ALLOCATION);
+			close(fd);
+			return ;
 		}
-		i += get_line_length(fc, i);
-		if (fc[i] == '\n')
-			i++;
+		if (read(fd, key, key_len) != (ssize_t)key_len)
+		{
+			fn_write_error("Error : Failed to read key from file");
+			close(fd);
+			return ;
+		}
+		key[key_len] = '\0';
+		if (read(fd, &val_len, sizeof(uint32_t)) != sizeof(uint32_t))
+		{
+			fn_write_error("Error: Failed to read value length from file");
+			close(fd);
+			return ;
+		}
+		val = malloc(val_len + 1);
+		if (!val)
+		{
+			logger(ERROR_MEMORY_ALLOCATION);
+			close(fd);
+			return ;
+		}
+		if (read(fd, val, val_len) != (ssize_t)val_len)
+		{
+			fn_write_error("Error: Failed to read value from file");
+			close(fd);
+			return ;
+		}
+		val[val_len] = '\0';
+		kv_set(table, key, val);
+		free(key);
+		free(val);
 	}
-	free(fc);
+	close(fd);
+	logger(SUCCESS);
 }

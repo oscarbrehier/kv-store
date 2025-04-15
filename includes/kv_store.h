@@ -6,8 +6,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
+#include <stdint.h>
 
 #define TABLE_SIZE 100
+#define FILE_HEADER "KVDB"
 
 typedef struct s_kv_pair
 {
@@ -37,8 +39,8 @@ const char		*kv_get(t_kv_pair **table, const char *key);
 void			kv_set(t_kv_pair **table, const char *key, const char *value);
 void			kv_delete(t_kv_pair **table, const char *key);
 void			kv_list(t_kv_pair **table);
-void			kv_save_to_file(t_kv_pair **table, const char *filename);
-void 			kv_load_from_file(t_kv_pair **table, const char *filename);
+void			kv_save_file(t_kv_pair **table, const char *filename);
+void			kv_load_file(t_kv_pair **table, const char *filename);
 void 			print_table(t_kv_pair **table);
 
 void			run_cli(t_kv_pair **table);

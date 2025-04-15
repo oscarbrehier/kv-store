@@ -28,7 +28,7 @@ void	kv_set(t_kv_pair **table, const char *key, const char *value)
 		{
 			strncpy(current->value, value, sizeof(current->value) - 1);
 			current->value[sizeof(current->value) - 1] = '\0';
-			log_error(ERROR_KEY_EXISTS);
+			logger(ERROR_KEY_EXISTS);
 			return ;
 		}
 		current = current->next;
@@ -36,7 +36,7 @@ void	kv_set(t_kv_pair **table, const char *key, const char *value)
 	new_pair = malloc(sizeof(t_kv_pair));
 	if (!new_pair)
 	{
-		log_error(ERROR_MEMORY_ALLOCATION);
+		logger(ERROR_MEMORY_ALLOCATION);
 		return ;
 	}
 	strncpy(new_pair->key, key, sizeof(new_pair->key) - 1);
@@ -45,7 +45,7 @@ void	kv_set(t_kv_pair **table, const char *key, const char *value)
 	new_pair->value[sizeof(new_pair->value) - 1] = '\0';
 	new_pair->next = table[index];
 	table[index] = new_pair;
-	log_error(SUCCESS);
+	logger(SUCCESS);
 }
 
 const char *kv_get(t_kv_pair **table, const char *key)
@@ -56,7 +56,7 @@ const char *kv_get(t_kv_pair **table, const char *key)
 	index = hash(key);
 	if (table[index] == NULL)
 	{
-		log_error(ERROR_MEMORY_ALLOCATION);
+		logger(ERROR_MEMORY_ALLOCATION);
 		return (NULL);
 	}
 	current = table[index];
@@ -66,7 +66,7 @@ const char *kv_get(t_kv_pair **table, const char *key)
 			return (current->value);
 		current = current->next;
 	}
-	log_error(ERROR_KEY_NOT_FOUND);
+	logger(ERROR_KEY_NOT_FOUND);
 	return (NULL);
 };
 
@@ -79,7 +79,7 @@ void	kv_delete(t_kv_pair **table, const char *key)
 	index = hash(key);
 	if (table[index] == NULL)
 	{
-		log_error(ERROR_KEY_NOT_FOUND);
+		logger(ERROR_KEY_NOT_FOUND);
 		return ;
 	}
 	current = table[index];
@@ -93,13 +93,13 @@ void	kv_delete(t_kv_pair **table, const char *key)
 			else
 				previous = current->next;
 			free(current);
-			log_error(SUCCESS);
+			logger(SUCCESS);
 			return ;
 		}
 		previous = current;
 		current = current->next;
 	}
-	log_error(ERROR_KEY_NOT_FOUND);
+	logger(ERROR_KEY_NOT_FOUND);
 };
 
 void	kv_list(t_kv_pair **table)

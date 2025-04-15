@@ -17,6 +17,6 @@
 
 extern const char *error_messages[];
 
-void    log_error(int code);
+void    logger(int code);
 
 #endif

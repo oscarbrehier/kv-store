@@ -12,12 +12,16 @@ void	handle_set(t_kv_pair **table, int argc, char **argv)
 
 void	handle_get(t_kv_pair **table, int argc, char **argv)
 {
+	const char	*res;
+
 	if (argc != 2)
 	{
 		fn_putstr("Usage: get <key>\n");
 		return;
 	}
-	kv_get(table, argv[1]);
+	res = kv_get(table, argv[1]);
+	if (res != NULL)
+		printf("%s\n", res);
 }
 
 void	handle_delete(t_kv_pair **table, int argc, char **argv)
@@ -37,6 +41,26 @@ void	handle_list(t_kv_pair **table, int argc, char **argv)
 	print_table(table);
 }
 
+void 	handle_save(t_kv_pair **table, int argc, char **argv)
+{
+	if (argc != 2)
+	{
+		fn_putstr("Usage: save <filename>\n");
+		return ;
+	}
+	kv_save_file(table, argv[1]);
+}
+
+void	handle_load(t_kv_pair **table, int argc, char **argv)
+{
+	if (argc != 2)
+	{
+		fn_putstr("Usage: save <filename>\n");
+		return ;
+	}
+	kv_load_file(table, argv[1]);
+}
+
 void	exec_cmd(t_kv_pair **table, int argc, char **argv)
 {
 	long unsigned int	i;
@@ -44,7 +68,9 @@ void	exec_cmd(t_kv_pair **table, int argc, char **argv)
 		{"set", handle_set},
 		{"get", handle_get},
 		{"delete", handle_delete},
-		{"list", handle_list}
+		{"list", handle_list},
+		{"save", handle_save},
+		{"load", handle_load}
 	};
 
 	i = 0;

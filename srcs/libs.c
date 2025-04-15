@@ -14,7 +14,7 @@ const char *error_messages[] = {
     "Error: Invalid command. Type 'help' for a list of available commands.",
     "Error: Failed to save data to file before exit.",
     "Error: An unexpected error occurred during exit. Data may not have been saved.",
-    "Error: Incorrect usage of the command. Use 'help' to see the correct syntax."
+    "Error: Incorrect usage of the command. Use 'help' to see the correct syntax.",
 };
 
 void	fn_putstr(const char *str)
@@ -28,6 +28,7 @@ void	fn_putstr(const char *str)
 
 void	fn_write_error(const char *error)
 {
+	if (!error) return ;
     while (*error)
     {
 		write(2, error, 1);
@@ -36,7 +37,7 @@ void	fn_write_error(const char *error)
 	write(2, "\n", 1);
 }
 
-void    log_error(int code)
+void    logger(int code)
 {
     if (code >= 0 && code < 13)
 		fn_write_error(error_messages[code]);
