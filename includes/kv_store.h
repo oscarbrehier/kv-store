@@ -37,10 +37,17 @@ typedef struct s_kv_pair
 	struct s_kv_pair	*next;
 } t_kv_pair;
 
+typedef struct s_kv_table
+{
+	t_kv_pair	**buckets;
+	int			capacity;
+	int			size;
+} t_kv_table;
+
 typedef struct s_command
 {
 	char *cmd;
-	void (*handler)(t_kv_pair **, int, char **);
+	void (*handler)(t_kv_table *, int, char **);
 } t_command;
 
 int				ft_strlen(const char *str);
@@ -53,17 +60,19 @@ int 			count_words(char *str);
 int				is_space(char c);
 int 			is_valid_key(const char *key);
 
-unsigned int	hash(const char *key);
+unsigned int	hash(const char *key, size_t capacity);
 
-const char		*kv_get(t_kv_pair **table, const char *key);
-void			kv_set(t_kv_pair **table, const char *key, const char *value);
-void			kv_delete(t_kv_pair **table, const char *key);
+const char		*kv_get(t_kv_table *table, const char *key);
+void			kv_set(t_kv_table *table, const char *key, const char *value);
+void			kv_delete(t_kv_table *table, const char *key);
 void			kv_list(t_kv_pair **table);
-void			kv_save_file(t_kv_pair **table, const char *filename);
-void			kv_load_file(t_kv_pair **table, const char *filename);
-void 			print_table(t_kv_pair **table);
+void			kv_save_file(t_kv_table *table, const char *filename);
+void			kv_load_file(t_kv_table *table, const char *filename);
+t_kv_table		*kv_init_table(int capacity);
+void			kv_resize(t_kv_table *table);
+void 			print_table(t_kv_table *table);
 
-void			run_cli(t_kv_pair **table);
-void			exec_cmd(t_kv_pair **table, int argc, char **argv);
+void			run_cli(t_kv_table *table);
+void			exec_cmd(t_kv_table *table, int argc, char **argv);
 
 #endif

@@ -95,7 +95,7 @@ int	parse_input(char *input, char ***args)
 	return (argc);
 }
 
-void run_cli(t_kv_pair **table)
+void run_cli(t_kv_table *table)
 {
 	int		argc;
 	char	**argv;

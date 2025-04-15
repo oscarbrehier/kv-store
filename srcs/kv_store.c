@@ -1,6 +1,6 @@
 #include "kv_store.h"
 
-unsigned int hash(const char *key)
+unsigned int hash(const char *key, size_t capacity)
 {
 	int i = 0;
 	int hash = 5381;
@@ -10,17 +10,19 @@ unsigned int hash(const char *key)
 		hash = (hash * 33) + key[i];
 		i++;
 	}
-	return ((hash % TABLE_SIZE + TABLE_SIZE) % TABLE_SIZE);
+	return ((hash % capacity + capacity) % capacity);
 }
 
-void	kv_set(t_kv_pair **table, const char *key, const char *value)
+void	kv_set(t_kv_table *table, const char *key, const char *value)
 {
-	unsigned int index;
-	t_kv_pair *new_pair;
-	t_kv_pair *current;
+	unsigned	int index;
+	t_kv_pair	*new_pair;
+	t_kv_pair	*current;
 
-	index = hash(key);
-	current = table[index];
+	if (table->size >= table->capacity * 0.75)
+		kv_resize(table);
+	index = hash(key, table->capacity);
+	current = table->buckets[index];
 	while (current != NULL)
 	{
 		if (strcmp(current->key, key) == 0)
@@ -42,23 +44,24 @@ void	kv_set(t_kv_pair **table, const char *key, const char *value)
 	strncpy(new_pair->value, value, sizeof(new_pair->value) - 1);
 	new_pair->key[sizeof(new_pair->key) - 1] = '\0';
 	new_pair->value[sizeof(new_pair->value) - 1] = '\0';
-	new_pair->next = table[index];
-	table[index] = new_pair;
+	new_pair->next = table->buckets[index];
+	table->buckets[index] = new_pair;
+	table->size++;
 	logger(2, SUCCESS);
 }
 
-const char *kv_get(t_kv_pair **table, const char *key)
+const char *kv_get(t_kv_table *table, const char *key)
 {
 	unsigned int index;
 	t_kv_pair *current;
 
-	index = hash(key);
-	if (table[index] == NULL)
+	index = hash(key, table->capacity);
+	if (table->buckets[index] == NULL)
 	{
 		logger(1, ERROR_MEMORY_ALLOCATION);
 		return (NULL);
 	}
-	current = table[index];
+	current = table->buckets[index];
 	while (current != NULL)
 	{
 		if (strcmp(current->key, key) == 0)
@@ -69,26 +72,26 @@ const char *kv_get(t_kv_pair **table, const char *key)
 	return (NULL);
 };
 
-void	kv_delete(t_kv_pair **table, const char *key)
+void	kv_delete(t_kv_table *table, const char *key)
 {
 	unsigned int index;
 	t_kv_pair *current;
 	t_kv_pair *previous;
 
-	index = hash(key);
-	if (table[index] == NULL)
+	index = hash(key, table->capacity);
+	if (table->buckets[index] == NULL)
 	{
 		logger(1, ERROR_KEY_NOT_FOUND);
 		return ;
 	}
-	current = table[index];
+	current = table->buckets[index];
 	previous = NULL;
 	while (current != NULL)
 	{
 		if (strcmp(current->key, key) == 0)
 		{
 			if (previous == NULL)
-				table[index] = current->next;
+				table->buckets[index] = current->next;
 			else
 				previous = current->next;
 			free(current);
@@ -143,7 +146,7 @@ void	print_header(int key_width, int value_width)
     printf("\n");
 }
 
-void	print_table(t_kv_pair **table)
+void	print_table(t_kv_table *table)
 {
     int			i;
 	int 		count;
@@ -154,9 +157,9 @@ void	print_table(t_kv_pair **table)
 	i = 0;
 	key_width = 10;
 	value_width = 10;
-	while (i < TABLE_SIZE)
+	while (i < table->capacity)
 	{
-		current = table[i];
+		current = table->buckets[i];
         while (current)
         {
             if (strlen(current->key) > key_width)
@@ -170,9 +173,9 @@ void	print_table(t_kv_pair **table)
 	print_header((int)key_width, (int)value_width);
 	count = 0;
 	i = 0;
-    while (i < TABLE_SIZE)
+    while (i < table->capacity)
 	{
-		current = table[i];
+		current = table->buckets[i];
         while (current)
         {
             printf("  %-*s   | %-*s  \n", (int)key_width, current->key, (int)value_width, current->value);

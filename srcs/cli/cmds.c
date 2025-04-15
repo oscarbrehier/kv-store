@@ -1,6 +1,6 @@
 #include "kv_store.h"
 
-void	handle_set(t_kv_pair **table, int argc, char **argv)
+void	handle_set(t_kv_table *table, int argc, char **argv)
 {
 	if (argc != 3)
 	{
@@ -15,7 +15,7 @@ void	handle_set(t_kv_pair **table, int argc, char **argv)
 	kv_set(table, argv[1], argv[2]);
 }
 
-void	handle_get(t_kv_pair **table, int argc, char **argv)
+void	handle_get(t_kv_table *table, int argc, char **argv)
 {
 	const char	*res;
 
@@ -29,7 +29,7 @@ void	handle_get(t_kv_pair **table, int argc, char **argv)
 		printf("%s\n", res);
 }
 
-void	handle_delete(t_kv_pair **table, int argc, char **argv)
+void	handle_delete(t_kv_table *table, int argc, char **argv)
 {
 	if (argc != 2)
 	{
@@ -39,14 +39,14 @@ void	handle_delete(t_kv_pair **table, int argc, char **argv)
 	kv_delete(table, argv[1]);
 }
 
-void	handle_list(t_kv_pair **table, int argc, char **argv)
+void	handle_list(t_kv_table *table, int argc, char **argv)
 {
 	(void)argc;
 	(void)argv;
 	print_table(table);
 }
 
-void 	handle_save(t_kv_pair **table, int argc, char **argv)
+void 	handle_save(t_kv_table *table, int argc, char **argv)
 {
 	if (argc != 2)
 	{
@@ -56,7 +56,7 @@ void 	handle_save(t_kv_pair **table, int argc, char **argv)
 	kv_save_file(table, argv[1]);
 }
 
-void	handle_load(t_kv_pair **table, int argc, char **argv)
+void	handle_load(t_kv_table *table, int argc, char **argv)
 {
 	if (argc != 2)
 	{
@@ -66,7 +66,7 @@ void	handle_load(t_kv_pair **table, int argc, char **argv)
 	kv_load_file(table, argv[1]);
 }
 
-void	exec_cmd(t_kv_pair **table, int argc, char **argv)
+void	exec_cmd(t_kv_table *table, int argc, char **argv)
 {
 	long unsigned int	i;
 	t_command commands[] = {

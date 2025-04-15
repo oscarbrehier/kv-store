@@ -14,7 +14,7 @@ int	write_header(int fd)
 	return (1);
 }
 
-void	kv_save_file(t_kv_pair **table, const char *filename)
+void	kv_save_file(t_kv_table *table, const char *filename)
 {
 	int i;
 	int fd;
@@ -32,9 +32,9 @@ void	kv_save_file(t_kv_pair **table, const char *filename)
 	}
 	if (!(write_header(fd)))
 		return ;
-	while (i < TABLE_SIZE)
+	while (i < table->capacity)
 	{
-		current = table[i];
+		current = table->buckets[i];
 		while (current != NULL)
 		{
 			key_len = ft_strlen(current->key);
@@ -72,7 +72,7 @@ void	kv_save_file(t_kv_pair **table, const char *filename)
 	close(fd);
 };
 
-void	kv_load_file(t_kv_pair **table, const char *filename)
+void	kv_load_file(t_kv_table *table, const char *filename)
 {
 	int			fd;
 	uint32_t	key_len;
