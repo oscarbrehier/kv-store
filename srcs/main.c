@@ -1,6 +1,5 @@
 #include "kv_store.h"
-
-t_kv_pair *hashTable[TABLE_SIZE] = {NULL};
+#include "libs.h"
 
 void kv_free_table(t_kv_table *table)
 {
@@ -33,7 +32,7 @@ int	main(void)
     if (!table)
     {
         logger(1, "Error: Failed to initialize table");
-        return ;
+        return (1);
     }
 	run_cli(table);
 	kv_free_table(table);

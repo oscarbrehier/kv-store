@@ -1,4 +1,7 @@
+#include <sys/stat.h>
+#include <time.h>
 #include "kv_store.h"
+#include "libs.h"
 
 void	ft_putstr(int fd, const char *str)
 {
@@ -15,7 +18,7 @@ void    logger(int fd, char *content)
 	ft_putstr(fd, "\n");
 }
 
-int	ft_strlen(const char *str)
+int	ft_strlen(char *str)
 {
     int i;
 
@@ -137,4 +140,12 @@ void	read_file_into_buffer(const char *filename, char **content)
 	// (*content)[buffer_size + 1] = '\0';
 	if (close(fd) < 0)
 		logger(1,ERROR_FILE_CLOSE);
+}
+
+void formatTimestamp(time_t timestamp, char *buf, size_t buf_size)
+{
+	struct tm	ts;
+	
+	ts = *localtime(&timestamp);
+	strftime(buf, buf_size, "%a %Y-%m-%d %H:%M:%S %Z", &ts);
 }

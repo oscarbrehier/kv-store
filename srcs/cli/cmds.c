@@ -1,4 +1,6 @@
 #include "kv_store.h"
+#include "libs.h"
+#include "cli.h"
 
 void	handle_set(t_kv_table *table, int argc, char **argv)
 {
@@ -43,7 +45,7 @@ void	handle_list(t_kv_table *table, int argc, char **argv)
 {
 	(void)argc;
 	(void)argv;
-	print_table(table);
+	kv_render_table(table);
 }
 
 void 	handle_save(t_kv_table *table, int argc, char **argv)
@@ -73,9 +75,10 @@ void	exec_cmd(t_kv_table *table, int argc, char **argv)
 		{"set", handle_set},
 		{"get", handle_get},
 		{"delete", handle_delete},
-		{"list", handle_list},
 		{"save", handle_save},
-		{"load", handle_load}
+		{"load", handle_load},
+		{"entries", cmd_entries},
+		{"list", cmd_list},
 	};
 
 	i = 0;

@@ -1,4 +1,5 @@
 #include "kv_store.h"
+#include "libs.h"
 
 unsigned int hash(const char *key, size_t capacity)
 {
@@ -104,26 +105,7 @@ void	kv_delete(t_kv_table *table, const char *key)
 	logger(1, ERROR_KEY_NOT_FOUND);
 };
 
-void	kv_list(t_kv_pair **table)
-{
-	int	i;
-	t_kv_pair *current;
-
-	i = 0;
-	
-	while (i < TABLE_SIZE)
-	{
-		current = table[i];
-		while (current != NULL)
-		{
-			printf("%s:%s\n", current->key, current->value);
-			current = current->next;
-		}
-		i++;
-	}
-}
-
-void	print_header(int key_width, int value_width)
+void	kv_render_table_header(int key_width, int value_width)
 {
 	int i;
 	
@@ -146,7 +128,7 @@ void	print_header(int key_width, int value_width)
     printf("\n");
 }
 
-void	print_table(t_kv_table *table)
+void	kv_render_table(t_kv_table *table)
 {
     int			i;
 	int 		count;
@@ -170,7 +152,7 @@ void	print_table(t_kv_table *table)
         }
 		i++;
 	}
-	print_header((int)key_width, (int)value_width);
+	kv_render_table_header((int)key_width, (int)value_width);
 	count = 0;
 	i = 0;
     while (i < table->capacity)
