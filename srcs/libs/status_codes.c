@@ -32,6 +32,8 @@ void    log_message(int fd, t_status_code code, ...)
     const char *content = get_status(code);
     va_list args;
 
+    if (code == SUCCESS_CODE)
+        fd = 2;
     va_start(args, code);
     logger(fd, (char *)content, args);
     va_end(args);

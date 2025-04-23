@@ -58,12 +58,12 @@ typedef struct s_command
 
 unsigned int	hash(const char *key, size_t capacity);
 t_kv_table		*kv_init_table(int capacity);
-const char		*kv_get(t_kv_table *table, const char *key);
+t_status_code	kv_get(t_kv_table *table, const char *key, const char **output);
 t_status_code	kv_resize(t_kv_table *table);
 t_status_code	kv_set(t_kv_table *table, const char *key, const char *value);
-void			kv_delete(t_kv_table *table, const char *key);
-void			kv_save_file(t_kv_table *table, const char *filename);
-void			kv_load_file(t_kv_table *table, const char *filename);
+t_status_code	kv_delete(t_kv_table *table, const char *key);
+t_status_code	kv_save_file(t_kv_table *table, const char *filename);
+t_status_code	kv_load_file(t_kv_table *table, const char *filename);
 void 			kv_render_table(t_kv_table *table);
 void			run_cli(t_kv_store *table);
 void			exec_cmd(t_kv_store *table, int argc, char **argv);

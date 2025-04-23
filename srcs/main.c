@@ -26,8 +26,9 @@ void kv_free_table(t_kv_table *table)
 
 int	main(void)
 {
-    t_kv_store *store;
-    t_kv_table *table;
+    t_kv_store      *store;
+    t_kv_table      *table;
+    t_status_code   ft_res;
 
     store = (t_kv_store *)malloc(sizeof(t_kv_store));
     if (!store)
@@ -42,7 +43,11 @@ int	main(void)
         logger(1, "Error: Failed to initialize table");
         return (1);
     }
-    kv_load_file(table, "./data/data.kvdb");
+    if ((ft_res = kv_load_file(table, "./data/data.kvdb")) != SUCCESS_CODE)
+    {
+        log_message(1, ft_res);
+        return (1);
+    }
     store->table = table;
     strcpy(store->name, "data");
     run_cli(store);

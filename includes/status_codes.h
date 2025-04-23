@@ -17,8 +17,11 @@
     X(ERROR_FILE_SAVE, 12, "Error: Failed to save data to file before exit.") \
     X(ERROR_UNEXPECTED_EXIT, 13, "Error: An unexpected error occurred during exit. Data may not have been saved.") \
     X(ERROR_HELP_SYNTAX, 14, "Error: Incorrect usage of the command. Use 'help' to see the correct syntax.") \
-    X(ERROR_FILE_HEADER, 15, "Error: Invalid file header.")
-
+    X(ERROR_FILE_HEADER, 15, "Error: Invalid file header.") \
+    X(ERROR_READ_KEY, 16, "Error : Failed to read key from file.") \
+    X(ERROR_READ_VAL, 17, "Error: Failed to read value from file.") \
+    X(ERROR_READ_VAL_LEN, 18, "Error: Failed to read value length from file.") 
+    
 #define X(name, code, message) name##_CODE = code,
 
 typedef enum {

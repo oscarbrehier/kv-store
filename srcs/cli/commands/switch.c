@@ -3,8 +3,9 @@
 
 void    cmd_switch(t_kv_store *store, int argc, char **argv)
 {
-    char        *file_path;
-    t_kv_table  *temp;
+    char            *file_path;
+    t_kv_table      *temp;
+    t_status_code   ft_res;
 
     temp = kv_init_table(8);
     if (!temp)
@@ -23,7 +24,15 @@ void    cmd_switch(t_kv_store *store, int argc, char **argv)
         free(file_path);
         return ;
     }
-    kv_load_file(temp, file_path);
+    ft_res = kv_load_file(temp, file_path);
+    if (ft_res != SUCCESS_CODE)
+    {
+        log_message(1, ft_res);
+        free(file_path);
+        kv_free_table(store->table);
+        free(store);
+        return ;
+    }
     if (store->table)
         free(store->table);
     store->table = temp;

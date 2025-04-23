@@ -55,29 +55,28 @@ t_status_code	kv_set(t_kv_table *table, const char *key, const char *value)
 	return (SUCCESS_CODE);
 }
 
-const char *kv_get(t_kv_table *table, const char *key)
+t_status_code	kv_get(t_kv_table *table, const char *key, const char **output)
 {
 	unsigned int index;
 	t_kv_pair *current;
 
 	index = hash(key, table->capacity);
 	if (table->buckets[index] == NULL)
-	{
-		logger(1, ERROR_MEMORY_ALLOCATION);
-		return (NULL);
-	}
+		return (ERROR_KEY_NOT_FOUND_CODE);
 	current = table->buckets[index];
 	while (current != NULL)
 	{
 		if (strcmp(current->key, key) == 0)
-			return (current->value);
+		{
+			*output = current->value;
+			return (SUCCESS_CODE);
+		}
 		current = current->next;
 	}
-	logger(1, ERROR_KEY_NOT_FOUND);
-	return (NULL);
+	return (ERROR_KEY_NOT_FOUND_CODE);
 };
 
-void	kv_delete(t_kv_table *table, const char *key)
+t_status_code	kv_delete(t_kv_table *table, const char *key)
 {
 	unsigned int index;
 	t_kv_pair *current;
@@ -85,10 +84,7 @@ void	kv_delete(t_kv_table *table, const char *key)
 
 	index = hash(key, table->capacity);
 	if (table->buckets[index] == NULL)
-	{
-		logger(1, ERROR_KEY_NOT_FOUND);
-		return ;
-	}
+		return (ERROR_KEY_NOT_FOUND_CODE);
 	current = table->buckets[index];
 	previous = NULL;
 	while (current != NULL)
@@ -100,13 +96,12 @@ void	kv_delete(t_kv_table *table, const char *key)
 			else
 				previous = current->next;
 			free(current);
-			logger(2,SUCCESS);
-			return ;
+			return (SUCCESS_CODE);
 		}
 		previous = current;
 		current = current->next;
 	}
-	logger(1, ERROR_KEY_NOT_FOUND);
+	return (ERROR_KEY_NOT_FOUND_CODE);
 };
 
 void	kv_render_table_header(int key_width, int value_width)

@@ -4,7 +4,7 @@
 
 void	handle_set(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	result;
+	t_status_code	ft_res;
 
 	if (argc != 3)
 	{
@@ -16,32 +16,38 @@ void	handle_set(t_kv_store *store, int argc, char **argv)
 		logger(2, "Error: Key contains illegal characters");
 		return ;
 	}
-	result = kv_set(store->table, argv[1], argv[2]);
-	log_message(1, result);
+	ft_res = kv_set(store->table, argv[1], argv[2]);
+	log_message(1, ft_res);
 }
 
 void	handle_get(t_kv_store *store, int argc, char **argv)
 {
-	const char	*res;
+	t_status_code	ft_res;
+	const char		*value;
 
 	if (argc != 2)
 	{
 		logger(2, "Usage: get <key>");
 		return;
 	}
-	res = kv_get(store->table, argv[1]);
-	if (res != NULL)
-		printf("%s\n", res);
+	ft_res = kv_get(store->table, argv[1], &value);
+	if (ft_res == SUCCESS_CODE && value)
+		logger(2, "%s", (char *)value);
+	else
+		log_message(1, ft_res);
 }
 
 void	handle_delete(t_kv_store *store, int argc, char **argv)
 {
+	t_status_code	ft_res;
+
 	if (argc != 2)
 	{
 		logger(2, "Usage: delete <key>");
 		return;
 	}
-	kv_delete(store->table, argv[1]);
+	ft_res = kv_delete(store->table, argv[1]);
+	log_message(1, ft_res);
 }
 
 void	handle_list(t_kv_store *store, int argc, char **argv)
@@ -53,22 +59,28 @@ void	handle_list(t_kv_store *store, int argc, char **argv)
 
 void 	handle_save(t_kv_store *store, int argc, char **argv)
 {
+	t_status_code	ft_res;
+
 	if (argc != 2)
 	{
 		logger(2, "Usage: save <filename>");
 		return ;
 	}
-	kv_save_file(store->table, argv[1]);
+	ft_res = kv_save_file(store->table, argv[1]);
+	log_message(1, ft_res);
 }
 
 void	handle_load(t_kv_store *store, int argc, char **argv)
 {
+	t_status_code	ft_res;
+
 	if (argc != 2)
 	{
 		logger(2, "Usage: save <filename>");
 		return ;
 	}
-	kv_load_file(store->table, argv[1]);
+	ft_res = kv_load_file(store->table, argv[1]);
+	log_message(1, ft_res);
 }
 
 void	exec_cmd(t_kv_store *store, int argc, char **argv)
