@@ -1,5 +1,8 @@
 #include "kv_store.h"
+#include "kv_table.h"
+#include "status_codes.h"
 #include "libs.h"
+#include "cli.h"
 
 void kv_free_table(t_kv_table *table)
 {
@@ -33,11 +36,11 @@ int	main(void)
     store = (t_kv_store *)malloc(sizeof(t_kv_store));
     if (!store)
     {
-        logger(1, ERROR_MEMORY_ALLOCATION);
+        log_message(1, ERROR_MEMORY_REALLOCATION_CODE);
         return (1);
     }
 
-    table = kv_init_table(8);
+    kv_init_table(&table, 8);
     if (!table)
     {
         logger(1, "Error: Failed to initialize table");

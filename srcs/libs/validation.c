@@ -1,4 +1,4 @@
-#include "kv_store.h"
+#include "kv_table.h"
 
 int is_alpha_num(char c)
 {

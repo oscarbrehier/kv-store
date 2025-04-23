@@ -1,4 +1,4 @@
-#include "kv_store.h"
+#include "kv_table.h"
 #include "libs.h"
 
 int	write_header(int fd)
@@ -8,7 +8,7 @@ int	write_header(int fd)
 	header_len = ft_strlen(FILE_HEADER);
 	if (write(fd, FILE_HEADER, header_len) != (ssize_t)header_len)
 	{
-		logger(1, ERROR_FILE_WRITE);
+		log_message(1, ERROR_FILE_WRITE_CODE);
 		close(fd);
 		return 0;
 	}

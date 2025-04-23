@@ -1,7 +1,5 @@
-#include <dirent.h>
-#include <sys/stat.h>
-#include <time.h>
-#include "kv_store.h"
+#include "utils.h"
+#include "kv_table.h"
 #include "libs.h"
 #include "cli.h"
 
@@ -42,7 +40,7 @@ char	***realloc_data(char ***data, int size, int i)
 	temp = realloc(data, sizeof(char **) * size);
 	if (!temp)
 	{
-		logger(1, ERROR_MEMORY_REALLOCATION);
+		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
 		cleanup_data_table(data, i);
 		return (NULL);
 	}
@@ -67,7 +65,7 @@ static char	***get_data(int *rows)
 	data = malloc(sizeof(char **) * size);
 	if (!data)
 	{
-		logger(1, ERROR_MEMORY_ALLOCATION);
+		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
 		return (NULL);
 	}
 	i = 0;
@@ -89,7 +87,7 @@ static char	***get_data(int *rows)
 			data[i] = malloc(sizeof(char *) * 3);
 			if (!data[i])
 			{
-				logger(1, ERROR_MEMORY_ALLOCATION);
+				log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
 				cleanup_data_table(data, i);
 				return (NULL);
 			}

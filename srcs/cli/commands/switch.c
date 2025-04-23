@@ -1,3 +1,4 @@
+#include "kv_table.h"
 #include "kv_store.h"
 #include "libs.h"
 
@@ -7,7 +8,7 @@ void    cmd_switch(t_kv_store *store, int argc, char **argv)
     t_kv_table      *temp;
     t_status_code   ft_res;
 
-    temp = kv_init_table(8);
+    kv_init_table(&temp, 8);
     if (!temp)
     {
         logger(1, "Error: failed to init table.");
@@ -18,7 +19,7 @@ void    cmd_switch(t_kv_store *store, int argc, char **argv)
         logger(2, "Usage: switch <store name>");
         return ;
     }
-    file_path = construct_store_path(argv[1], "./data/");
+    file_path = construct_table_path(argv[1], "./data/");
     if (!file_path)
     {
         free(file_path);
@@ -37,6 +38,6 @@ void    cmd_switch(t_kv_store *store, int argc, char **argv)
         free(store->table);
     store->table = temp;
     strcpy(store->name, argv[1]);
-    logger(2, SUCCESS);
+    log_message(2, SUCCESS_CODE);
     free(file_path);
 }

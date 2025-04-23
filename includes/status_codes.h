@@ -20,7 +20,8 @@
     X(ERROR_FILE_HEADER, 15, "Error: Invalid file header.") \
     X(ERROR_READ_KEY, 16, "Error : Failed to read key from file.") \
     X(ERROR_READ_VAL, 17, "Error: Failed to read value from file.") \
-    X(ERROR_READ_VAL_LEN, 18, "Error: Failed to read value length from file.") 
+    X(ERROR_READ_VAL_LEN, 18, "Error: Failed to read value length from file.") \
+    X(ERROR_INIT_TABLE, 19, "Error: Failed to initialize table.")
     
 #define X(name, code, message) name##_CODE = code,
 

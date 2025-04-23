@@ -1,5 +1,5 @@
 #include "cli.h"
-#include "kv_store.h"
+#include "kv_table.h"
 #include "libs.h"
 
 void    init_data_table(t_data_table *data_table, const char *title, const char *column_titles[])

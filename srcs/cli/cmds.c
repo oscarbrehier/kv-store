@@ -1,4 +1,5 @@
 #include "kv_store.h"
+#include "kv_table.h"
 #include "libs.h"
 #include "cli.h"
 
@@ -48,13 +49,6 @@ void	handle_delete(t_kv_store *store, int argc, char **argv)
 	}
 	ft_res = kv_delete(store->table, argv[1]);
 	log_message(1, ft_res);
-}
-
-void	handle_list(t_kv_store *store, int argc, char **argv)
-{
-	(void)argc;
-	(void)argv;
-	kv_render_table(store->table);
 }
 
 void 	handle_save(t_kv_store *store, int argc, char **argv)

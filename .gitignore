@@ -1,2 +1,12 @@
+# editor
+.vscode
+
+# build
 build
+
+# kv tables
+data
 *.kvdb
+
+# executables
+kv

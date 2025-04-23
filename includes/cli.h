@@ -1,5 +1,5 @@
-#include "stdlib.h"
-#include "kv_store.h"
+#include "utils.h"
+#include "kv_table.h"
 #include "libs.h"
 
 #ifndef CLI_TABLE_H
@@ -29,13 +29,23 @@ typedef struct s_data_table {
     t_table_col			columns[MAX_COLS];
 } t_data_table;
 
+typedef struct s_command
+{
+	char	*cmd;
+	void	(*handler)(t_kv_store *, int, char **);
+	int		table_required;
+} t_command;
+
+void	run_cli(t_kv_store *table);
+void	exec_cmd(t_kv_store *table, int argc, char **argv);
+
 void    display_table(t_data_table table);
 void    display_header(t_data_table table);
 
 void    init_data_table(t_data_table *data_table, const char *title, const char *column_titles[]);
 int     set_title(t_data_table *table, const char *title);
 void    add_column(t_data_table *table, const char *title);
-void	cleanup_data_table(char ***data, int row); 
+void	cleanup_data_table(char ***data, int row);
 
 void	cmd_entries(t_kv_store *store, int argc, char **argv);
 void    cmd_list(t_kv_store *store, int argc, char **argv);

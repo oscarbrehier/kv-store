@@ -1,8 +1,7 @@
-#include <sys/stat.h>
-#include <time.h>
-#include <stdarg.h>
+#include "utils.h"
 #include "kv_store.h"
 #include "libs.h"
+#include "status_codes.h"
 
 void	ft_putstr(int fd, const char *str)
 {
@@ -210,14 +209,14 @@ void	read_file_into_buffer(const char *filename, char **content)
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 	{
-		logger(1, ERROR_FILE_OPEN);
+		log_message(1, ERROR_FILE_OPEN_CODE);
 		return ;
 	}
 	buffer_capacity = 1024;
 	*content = (char *)malloc(buffer_capacity);
 	if (*content == NULL)
 	{
-		logger(1, ERROR_MEMORY_ALLOCATION);
+		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
 		close(fd);
 		return ;
 	}
@@ -242,7 +241,7 @@ void	read_file_into_buffer(const char *filename, char **content)
 	}
 	if (bytes_read < 0)
 	{
-		logger(1, ERROR_FILE_READ);
+		log_message(1, ERROR_FILE_READ_CODE);
 		free(*content);
 		close(fd);
 		return ;
@@ -258,7 +257,7 @@ void	read_file_into_buffer(const char *filename, char **content)
 	// (*content)[buffer_size] = '\n';
 	// (*content)[buffer_size + 1] = '\0';
 	if (close(fd) < 0)
-		logger(1,ERROR_FILE_CLOSE);
+		log_message(1, ERROR_FILE_CLOSE_CODE);
 }
 
 void formatTimestamp(time_t timestamp, char *buf, size_t buf_size)
@@ -269,7 +268,7 @@ void formatTimestamp(time_t timestamp, char *buf, size_t buf_size)
 	strftime(buf, buf_size, "%a %Y-%m-%d %H:%M:%S %Z", &ts);
 }
 
-char	*construct_store_path(char *filename, char *path)
+char	*construct_table_path(char *filename, char *path)
 {
 	char	ext[] = ".kvdb";
 	char	*fullpath;
@@ -277,7 +276,7 @@ char	*construct_store_path(char *filename, char *path)
 	fullpath = malloc(sizeof(char) * (ft_strlen(path) + ft_strlen(filename) + ft_strlen(ext) + 1));
 	if (!fullpath)
 	{
-		logger(1, ERROR_MEMORY_ALLOCATION);
+		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
 		return (NULL);
 	}
 	sprintf(fullpath, "%s%s%s", path, filename, ext);

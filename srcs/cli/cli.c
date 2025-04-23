@@ -1,5 +1,7 @@
 #include "kv_store.h"
+#include "kv_table.h"
 #include "libs.h"
+#include "cli.h"
 
 void read_input(char **input)
 {

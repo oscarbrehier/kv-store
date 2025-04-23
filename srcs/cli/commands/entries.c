@@ -1,4 +1,5 @@
 #include "kv_store.h"
+#include "kv_table.h"
 #include "libs.h"
 #include "cli.h"
 
@@ -7,13 +8,13 @@ static int	populate_row_data(char **row_data, t_kv_pair *pair)
 	row_data[0] = strdup(pair->key);
 	if (!row_data[0])
 	{
-		logger(1, ERROR_MEMORY_ALLOCATION);
+		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
 		return (-1);
 	}
 	row_data[1] = strdup(pair->value);
 	if (!row_data[1])
 	{
-		logger(1, ERROR_MEMORY_ALLOCATION);
+		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
 		free(row_data[0]);
 		return (-1);
 	}
@@ -33,7 +34,7 @@ static char	***collect_table_data(t_kv_table *table, int *row_count)
 	data = malloc(sizeof(char **) * (table->size + 1));
 	if (!data)
 	{
-		logger(1, ERROR_MEMORY_ALLOCATION);
+		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
 		return (NULL);
 	}
 	while (i < table->capacity)
@@ -44,7 +45,7 @@ static char	***collect_table_data(t_kv_table *table, int *row_count)
 			data[row] = malloc(sizeof(char *) * 3);
 			if (!data[row])
 			{
-				logger(1, ERROR_MEMORY_ALLOCATION);
+				log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
                 cleanup_data_table(data, row);
                 return NULL;
 			}

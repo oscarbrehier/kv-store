@@ -1,4 +1,5 @@
 #include "kv_store.h"
+#include "kv_table.h"
 
 void    cmd_exit(t_kv_store *store, int argc, char **argv)
 {
