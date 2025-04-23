@@ -1,5 +1,6 @@
 CC	= gcc
 CFLAGS	= -Wall -Wextra -Werror
+VFLAGS 	= --leak-check=full --show-leak-kinds=all --track-origins=yes
 SRCDIR	= srcs
 INCDIR	= includes
 BUILDDIR = build
@@ -29,6 +30,12 @@ clean:
 fclean:	clean
 		rm -f ${EXEC}
 
+debug: fclean ${EXEC} run
+
+run:
+	clear
+	valgrind ${VFLAGS} ./${EXEC}
+
 re:	fclean all
 
-.PHONY:	all clean fclean re
+.PHONY:	all clean fclean re debug run

@@ -1,4 +1,5 @@
 #include "kv_store.h"
+#include "error.h"
 #include "libs.h"
 
 unsigned int hash(const char *key, size_t capacity)
@@ -14,14 +15,19 @@ unsigned int hash(const char *key, size_t capacity)
 	return ((hash % capacity + capacity) % capacity);
 }
 
-void	kv_set(t_kv_table *table, const char *key, const char *value)
+t_status_code	kv_set(t_kv_table *table, const char *key, const char *value)
 {
-	unsigned	int index;
-	t_kv_pair	*new_pair;
-	t_kv_pair	*current;
+	unsigned int	index;
+	t_kv_pair		*new_pair;
+	t_kv_pair		*current;
+	t_status_code	ft_res;
 
 	if (table->size >= table->capacity * 0.75)
-		kv_resize(table);
+	{
+		ft_res = kv_resize(table);
+		if (ft_res != SUCCESS_CODE)
+			return (ft_res);
+	}
 	index = hash(key, table->capacity);
 	current = table->buckets[index];
 	while (current != NULL)
@@ -30,16 +36,14 @@ void	kv_set(t_kv_table *table, const char *key, const char *value)
 		{
 			strncpy(current->value, value, sizeof(current->value) - 1);
 			current->value[sizeof(current->value) - 1] = '\0';
-			logger(1, ERROR_KEY_EXISTS);
-			return ;
+			return (WARNING_KEY_EXISTS_CODE);
 		}
 		current = current->next;
 	}
 	new_pair = malloc(sizeof(t_kv_pair));
 	if (!new_pair)
 	{
-		logger(1, ERROR_MEMORY_ALLOCATION);
-		return ;
+		return (ERROR_MEMORY_ALLOCATION_CODE);
 	}
 	strncpy(new_pair->key, key, sizeof(new_pair->key) - 1);
 	strncpy(new_pair->value, value, sizeof(new_pair->value) - 1);
@@ -48,7 +52,7 @@ void	kv_set(t_kv_table *table, const char *key, const char *value)
 	new_pair->next = table->buckets[index];
 	table->buckets[index] = new_pair;
 	table->size++;
-	logger(2, SUCCESS);
+	return (SUCCESS_CODE);
 }
 
 const char *kv_get(t_kv_table *table, const char *key)

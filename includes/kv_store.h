@@ -1,3 +1,4 @@
+
 #ifndef KV_STORE_H
 # define KV_STORE_H
 
@@ -7,11 +8,12 @@
 #include <string.h>
 #include <fcntl.h>
 #include <stdint.h>
+#include "status_codes.h"
 
 #define FILE_HEADER "KVDB"
 
 #define SUCCESS "OK."
-#define ERROR_KEY_EXISTS "Error: Key already exists. Value will be updated."
+#define ERROR_KEY_EXISTS "Warning: Key already exists. Value will be updated."
 #define ERROR_MEMORY_ALLOCATION "Error: Failed to allocate memory for key-value pair."
 #define ERROR_MEMORY_REALLOCATION "Error: Failed to REallocate memory."
 #define ERROR_INVALID_INPUT "Error: Invalid key or value format."
@@ -49,21 +51,23 @@ typedef struct s_kv_store
 
 typedef struct s_command
 {
-	char *cmd;
-	void (*handler)(t_kv_table *, int, char **);
+	char	*cmd;
+	void	(*handler)(t_kv_store *, int, char **);
+	int		table_required;
 } t_command;
 
 unsigned int	hash(const char *key, size_t capacity);
 t_kv_table		*kv_init_table(int capacity);
-void			kv_resize(t_kv_table *table);
 const char		*kv_get(t_kv_table *table, const char *key);
-void			kv_set(t_kv_table *table, const char *key, const char *value);
+t_status_code	kv_resize(t_kv_table *table);
+t_status_code	kv_set(t_kv_table *table, const char *key, const char *value);
 void			kv_delete(t_kv_table *table, const char *key);
 void			kv_save_file(t_kv_table *table, const char *filename);
 void			kv_load_file(t_kv_table *table, const char *filename);
 void 			kv_render_table(t_kv_table *table);
-void			run_cli(t_kv_table *table);
-void			exec_cmd(t_kv_table *table, int argc, char **argv);
+void			run_cli(t_kv_store *table);
+void			exec_cmd(t_kv_store *table, int argc, char **argv);
+void 			kv_free_table(t_kv_table *table);
 
 void			table_list(void);
 

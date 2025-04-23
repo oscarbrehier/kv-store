@@ -10,6 +10,7 @@ void    init_data_table(t_data_table *data_table, const char *title, const char 
 	memset(data_table, 0, sizeof(t_data_table));
 	if (!(set_title(data_table, title)))
         return ;
+    data_table->data = NULL;
     // data_table->data = malloc(sizeof(char **) * 10); // Allocate memory for data
     // if (!data_table->data) {
     //      logger(1, ERROR_MEMORY_ALLOCATION);
@@ -168,16 +169,13 @@ void    display_table(t_data_table table)
     int             j;
     int             rows;
     int             tmp;
-    // const char      *columns_title[] = {"key", "value", "test", NULL};
 
-    // i = 0;
-    // while (columns_title[i])
-    // {
-    //     strncpy(table.columns[i].title, columns_title[i], sizeof(table.columns[i].title));
-    //     table.columns[i].title[sizeof(table.columns[i].title) + 1] = '\0';
-    //     table.columns[i].width = DEF_COL_WIDTH;
-    //     i++;
-    // }
+    if (!table.data || !table.data[0])
+    {
+        logger(2, "No entries found in table '%s'.", table.title);
+        free(table.title);
+		return ;
+    }
     j = 0;
     i = 0;
     table.column_count = 0;
@@ -189,7 +187,6 @@ void    display_table(t_data_table table)
     while (table.data[i])
     {
         j = 0;
-        // while (j < table.column_count)
         while (j < table.column_count)
         {
             tmp = ft_strlen(table.data[i][j]);

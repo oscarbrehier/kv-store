@@ -122,9 +122,9 @@ static char	***get_data(int *rows)
 	return (data);
 }
 
-void    cmd_list(t_kv_table *table, int argc, char **argv)
+void    cmd_list(t_kv_store *store, int argc, char **argv)
 {
-    (void)table;
+    (void)store;
     (void)argc;
     (void)argv;
 	int				row_count;

@@ -96,7 +96,7 @@ int	parse_input(char *input, char ***args)
 	return (argc);
 }
 
-void run_cli(t_kv_table *table)
+void run_cli(t_kv_store *store)
 {
 	int		argc;
 	char	**argv;
@@ -108,7 +108,10 @@ void run_cli(t_kv_table *table)
 	argv = NULL;
 	while (1)
 	{
-		printf("kv> ");
+		if (ft_strlen(store->name) > 0)
+			printf("kv (%s)> ", store->name);
+		else
+			printf("kv> ");
 
 		read_input(&input);
 		if (!input)
@@ -131,7 +134,7 @@ void run_cli(t_kv_table *table)
 			argv = NULL;
 			continue;
 		}
-		if (ft_strcmp(argv[0], "exit") == 0)
+		if (ft_strcmp(argv[0], "quit") == 0)
 		{
 			free(input);
 			i = 0;
@@ -143,7 +146,7 @@ void run_cli(t_kv_table *table)
 			free(argv);
 			break;	
 		}
-		exec_cmd(table, argc, argv);
+		exec_cmd(store, argc, argv);
 		free(input);
 		i = 0;
 		while (argv[i])

@@ -1,5 +1,6 @@
 #include <sys/stat.h>
 #include <time.h>
+#include <stdarg.h>
 #include "kv_store.h"
 #include "libs.h"
 
@@ -12,10 +13,128 @@ void	ft_putstr(int fd, const char *str)
 		write(fd, &str[i], 1);
 }
 
-void    logger(int fd, char *content)
+int	calculate_formatted_len(char *content, va_list args_cpy, int format_count)
 {
-	ft_putstr(fd, content);
-	ft_putstr(fd, "\n");
+	int		i;
+	int		len;
+	int		arg_count;
+	char 	*arg;
+	va_list	args;
+
+	i = 0;
+	va_copy(args, args_cpy);
+	i = 0;
+	len = 0;
+	arg_count = 0;
+	while (content[i])
+	{
+		if (content[i] == '%' && content[i + 1] == 's')
+		{
+			if (arg_count < format_count)
+			{
+				arg = va_arg(args, char *);
+				arg_count++;
+				len += arg ? ft_strlen(arg) : 6;
+			}
+			else
+			{
+				len += 8;
+			}
+			i += 2;
+		}
+		else
+		{
+			len++;
+			i++;
+		}
+	}
+	va_end(args);
+	return (len);
+}
+
+void    logger(int fd, char *content, ...)
+{
+	int		i;
+	int		j;
+	int 	arg_len;
+	int		strlen;
+	va_list args;
+	va_list args_copy;
+	char	*formatted_content;
+	char	*arg;
+	int		format_count = 0;
+	int		arg_count = 0;
+	char	*missing_str = "(missing)";
+	char	*null_str = "(null)";
+
+	i = 0;
+	while (content[i])
+	{
+		if (content[i] == '%' && content[i + 1] == 's')
+			format_count++;
+		i++;
+	}
+
+	va_start(args, content);
+	va_copy(args_copy, args);
+	strlen = calculate_formatted_len(content, args_copy, format_count);
+	va_end(args_copy);
+
+	// Removed check for strlen == 0 as it might reject valid empty strings
+	// if (strlen == 0)
+	// {
+	// 	ft_putstr(fd, content);
+	// 	ft_putstr(fd, "\n");
+	// 	return ;
+	// }
+	
+	formatted_content = malloc(sizeof(char) * (strlen + 1));
+	if (!formatted_content)
+	{
+		ft_putstr(fd, content);
+		ft_putstr(fd, "\n");
+		va_end(args);
+		return ;
+	}
+	i = 0;
+	j = 0;
+	while (content[i])
+	{
+		if (content[i] == '%' && content[i + 1] == 's')
+		{
+			if (arg_count < format_count)
+			{
+				arg = va_arg(args, char *);
+				if (arg)
+				{
+					arg_len = ft_strlen(arg);
+					memcpy(&formatted_content[j], arg, arg_len);
+					arg_count++;
+					j += arg_len;
+				}
+				else
+				{
+					memcpy(&formatted_content[j], null_str, 6);
+					j += 6;
+				}
+			}
+			else
+			{
+				memcpy(&formatted_content[j], missing_str, 9);
+				j += 8;
+			}
+			i += 2;
+		}
+		else
+		{
+			formatted_content[j++] = content[i++];
+		}
+	}
+	formatted_content[j] = '\0';
+	
+	printf("%s\n", formatted_content);
+	free(formatted_content);
+	va_end(args);
 }
 
 int	ft_strlen(char *str)
@@ -149,3 +268,18 @@ void formatTimestamp(time_t timestamp, char *buf, size_t buf_size)
 	ts = *localtime(&timestamp);
 	strftime(buf, buf_size, "%a %Y-%m-%d %H:%M:%S %Z", &ts);
 }
+
+char	*construct_store_path(char *filename, char *path)
+{
+	char	ext[] = ".kvdb";
+	char	*fullpath;
+
+	fullpath = malloc(sizeof(char) * (ft_strlen(path) + ft_strlen(filename) + ft_strlen(ext) + 1));
+	if (!fullpath)
+	{
+		logger(1, ERROR_MEMORY_ALLOCATION);
+		return (NULL);
+	}
+	sprintf(fullpath, "%s%s%s", path, filename, ext);
+	return (fullpath);
+} 

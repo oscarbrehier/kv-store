@@ -37,8 +37,9 @@ int     set_title(t_data_table *table, const char *title);
 void    add_column(t_data_table *table, const char *title);
 void	cleanup_data_table(char ***data, int row); 
 
-// commands
-void	cmd_entries(t_kv_table *table, int argc, char **argv);
-void    cmd_list(t_kv_table *table, int argc, char **argv);
+void	cmd_entries(t_kv_store *store, int argc, char **argv);
+void    cmd_list(t_kv_store *store, int argc, char **argv);
+void    cmd_exit(t_kv_store *store, int argc, char **argv);
+void    cmd_switch(t_kv_store *store, int argc, char **argv);
 
 #endif

@@ -18,13 +18,37 @@ t_kv_table *kv_init_table(int capacity)
     return (table);
 }
 
-void    kv_resize(t_kv_table *table)
+void    revert_resize(t_kv_table *table, t_kv_pair **old_buckets, int old_capacity)
 {
     int         i;
-    int         old_capacity;
-    t_kv_pair   **old_buckets;
-    t_kv_pair   *node;
-    t_kv_pair   *tmp;
+    t_kv_pair   *current;
+    t_kv_pair   *next;
+
+    i = 0;
+    while (i < table->capacity)
+    {
+        current = table->buckets[i];
+        while (current)
+        {
+            next = current->next;
+            free(current);
+            current = next;
+        }
+        i++;
+    }
+    free(table->buckets);
+    table->buckets = old_buckets;
+    table->capacity = old_capacity;
+}
+
+t_status_code    kv_resize(t_kv_table *table)
+{
+    int             i;
+    int             old_capacity;
+    t_kv_pair       **old_buckets;
+    t_kv_pair       *node;
+    t_kv_pair       *tmp;
+    t_status_code    result;
 
     old_capacity = table->capacity;
     old_buckets = table->buckets;
@@ -35,7 +59,7 @@ void    kv_resize(t_kv_table *table)
     {
         table->buckets = old_buckets;
         table->capacity = old_capacity;
-        return ;
+        return (ERROR_MEMORY_ALLOCATION_CODE);
     }
     i = 0;
     while (i < old_capacity)
@@ -43,7 +67,12 @@ void    kv_resize(t_kv_table *table)
         node = table->buckets[i];
         while (node)
         {
-            kv_set(table, node->key, node->value);
+            result = kv_set(table, node->key, node->value);
+            if (result != SUCCESS_CODE)
+            {
+                revert_resize(table, old_buckets, old_capacity);
+                return (result);
+            }
             tmp = node;
             node = node->next;
             free(tmp);
@@ -51,4 +80,5 @@ void    kv_resize(t_kv_table *table)
         i++;
     }
     free(old_buckets);
+    return (SUCCESS_CODE);
 }

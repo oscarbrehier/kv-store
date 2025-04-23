@@ -14,6 +14,7 @@ static int	populate_row_data(char **row_data, t_kv_pair *pair)
 	if (!row_data[1])
 	{
 		logger(1, ERROR_MEMORY_ALLOCATION);
+		free(row_data[0]);
 		return (-1);
 	}
 	row_data[2] = NULL;
@@ -62,7 +63,7 @@ static char	***collect_table_data(t_kv_table *table, int *row_count)
 	return (data);
 }
 
-void	cmd_entries(t_kv_table *table, int argc, char **argv)
+void	cmd_entries(t_kv_store *store, int argc, char **argv)
 {
 	(void)argc;
 	(void)argv;
@@ -73,10 +74,15 @@ void	cmd_entries(t_kv_table *table, int argc, char **argv)
 	
 	rows = 0;
 	init_data_table(&data_table, "Key-Value Store", column_titles);
-	data = collect_table_data(table, &rows);
+	data = collect_table_data(store->table, &rows);
 	if (!data)
-		return ;
-	data_table.data = data;
+	{
+		data_table.data = NULL;
+	}
+	else 
+	{
+		data_table.data = data;
+	}
 	display_table(data_table);
-	cleanup_data_table(data, rows);
+	if (data) cleanup_data_table(data, rows);
 }

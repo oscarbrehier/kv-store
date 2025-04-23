@@ -81,6 +81,7 @@ void	kv_load_file(t_kv_table *table, const char *filename)
 	char		*key;
 	char		*val;
 	char		header[4];
+	t_status_code	result;
 
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
@@ -130,10 +131,14 @@ void	kv_load_file(t_kv_table *table, const char *filename)
 			return ;
 		}
 		val[val_len] = '\0';
-		kv_set(table, key, val);
+		result = kv_set(table, key, val);
+		if (result != SUCCESS_CODE)
+		{
+			log_message(1, result);
+		}
 		free(key);
 		free(val);
 	}
 	close(fd);
-	logger(2, SUCCESS);
+	log_message(2, SUCCESS_CODE);
 }

@@ -3,6 +3,9 @@
         "kv_store.h": "c",
         "string.h": "c",
         "kv_error.h": "c",
-        "libs.h": "c"
+        "libs.h": "c",
+        "error_codes.h": "c",
+        "stat.h": "c",
+        "error.h": "c"
     }
 }
