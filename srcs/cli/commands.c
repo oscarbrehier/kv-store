@@ -2,6 +2,38 @@
 #include "kv_table.h"
 #include "libs.h"
 #include "cli.h"
+#include "hashtable.h"
+
+static t_hashtable *command_table = NULL;
+
+void init_command_sys(void)
+{
+    command_table = ht_create(64);
+}
+
+void cleanup_command_sys(void)
+{
+    if (command_table) {
+        ht_destroy(command_table);
+        command_table = NULL;
+    }
+}
+
+void register_command(t_command *cmd)
+{
+    if (!command_table || !cmd || !cmd->name)
+        return;
+    
+    ht_set(command_table, cmd->name, cmd);
+}
+
+t_command *find_command(const char *name)
+{
+    if (!command_table || !name)
+        return NULL;
+        
+    return ht_get(command_table, name);
+}
 
 void	handle_set(t_kv_store *store, int argc, char **argv)
 {
@@ -77,37 +109,80 @@ void	handle_load(t_kv_store *store, int argc, char **argv)
 	log_message(1, status);
 }
 
+void	cmd_clear(t_kv_store *store, int argc, char **argv)
+{
+	(void)store;
+	(void)argc;
+	(void)argv;
+	clear_console();
+}
+
+void	register_all_commads(void)
+{
+	init_command_sys();
+
+	register_set_command();
+}
+
 void	exec_cmd(t_kv_store *store, int argc, char **argv)
 {
-	long unsigned int	i;
-	t_command commands[] = {
-		{"set", handle_set, 1},
-		{"get", handle_get, 1},
-		{"delete", handle_delete, 1},
-		{"save", handle_save, 1},
-		{"load", handle_load, 1},
-		{"entries", cmd_entries, 1},
-		{"list", cmd_list, 0},
-		{"exit", cmd_exit, 1},
-		{"switch", cmd_switch, 0},
-		{"create", cmd_create, 0},
-		{"drop", cmd_drop, 0},
-		{"rename", cmd_rename, 0},
-	};
+	t_command	*cmd = NULL;
 
-	i = 0;
-	while (i < sizeof(commands) / sizeof(commands[0]))
+	if (argc < 1 || !argv || !argv[0])
+		return ;
+	cmd = find_command(argv[0]);
+	if (!cmd)
+		return ;
+	if ((cmd->flags & TABLE_REQUIRED) && !store->table)
 	{
-		if (ft_strcmp(argv[0], commands[i].cmd) == 0)
-		{
-			if (!store->table && commands[i].table_required)
-			{
-				logger(1, "Error: No store has been selected");
-				return ;
-			}
-			commands[i].handler(store, argc, argv);
-			return;
-		}
-		i++;
+		logger(1, "Error: No store has been selected.");
+		return ;
 	}
+	if ((cmd->flags & NO_TABLE_ALLOWED) && store->table)
+	{
+		logger(1, "Error: You must exit table `%s` first.", store->name);
+		return ;
+	}
+	cmd->handler(store, argc, argv);
 }
+
+// void	exec_cmd(t_kv_store *store, int argc, char **argv)
+// {
+// 	long unsigned int	i;
+// 	t_command commands[] = {
+// 		{"set", handle_set, TABLE_REQUIRED},
+// 		{"get", handle_get, TABLE_REQUIRED},
+// 		{"delete", handle_delete, TABLE_REQUIRED},
+// 		{"save", handle_save, TABLE_REQUIRED},
+// 		{"load", handle_load, TABLE_REQUIRED},
+// 		{"entries", cmd_entries, TABLE_REQUIRED},
+// 		{"exit", cmd_exit, TABLE_REQUIRED},
+// 		{"list", cmd_list, NO_TABLE_ALLOWED},
+// 		{"switch", cmd_switch, NO_TABLE_ALLOWED},
+// 		{"create", cmd_create, NO_TABLE_ALLOWED},
+// 		{"drop", cmd_drop, NO_TABLE_ALLOWED},
+// 		{"rename", cmd_rename, NO_TABLE_ALLOWED},
+// 		{"clear", cmd_clear, 0}
+// 	};
+
+// 	i = 0;
+// 	while (i < sizeof(commands) / sizeof(commands[0]))
+// 	{
+// 		if (ft_strcmp(argv[0], commands[i].cmd) == 0)
+// 		{
+// 			if ((commands[i].flags & TABLE_REQUIRED) && !store->table)
+// 			{
+// 				logger(1, "Error: No store has been selected.");
+// 				return ;
+// 			}
+// 			if ((commands[i].flags & NO_TABLE_ALLOWED) && store->table)
+// 			{
+// 				logger(1, "Error: You must exit table `%s` first.", store->name);
+// 				return ;
+// 			}
+// 			commands[i].handler(store, argc, argv);
+// 			return;
+// 		}
+// 		i++;
+// 	}
+// }

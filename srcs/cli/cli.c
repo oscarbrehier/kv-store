@@ -2,8 +2,9 @@
 #include "kv_table.h"
 #include "libs.h"
 #include "cli.h"
+#include "utils.h"
 
-void read_input(char **input)
+void	read_input(char **input)
 {
 	char *temp;
 	int c;
@@ -98,6 +99,23 @@ int	parse_input(char *input, char ***args)
 	return (argc);
 }
 
+void	pprompt(const char *table_name)
+{
+	if (table_name[0] != '\0')
+		printf(BRIGHT_BLUE BOLD "kv:(" RESET GREEN BOLD "%s" BRIGHT_BLUE ") " RESET, table_name);
+	else
+		printf(RESET BRIGHT_BLUE BOLD "kv: " RESET);
+}
+
+void	clear_console(void)
+{
+	#ifdef _WIN32
+        system("cls");
+    #else
+        system("clear");
+    #endif
+}
+
 void run_cli(t_kv_store *store)
 {
 	int		argc;
@@ -108,12 +126,16 @@ void run_cli(t_kv_store *store)
 	input = NULL;
 	argc = 0;
 	argv = NULL;
+	clear_console();
+	register_all_commads();
 	while (1)
 	{
-		if (ft_strlen(store->name) > 0)
-			printf("kv (%s)> ", store->name);
-		else
-			printf("kv> ");
+		// if (ft_strlen(store->name) > 0)
+		// 	// printf(BRIGHT_BLUE "kv " RESET "(" GREEN BOLD "%s" RESET ")> ", store->name);
+		// 	printf(BRIGHT_BLUE BOLD "kv:(" RESET GREEN BOLD "%s" BRIGHT_BLUE ") " RESET, store->name);
+		// else
+		// 	printf(RESET BRIGHT_BLUE BOLD "kv: " RESET);
+		pprompt(store->name);
 
 		read_input(&input);
 		if (!input)

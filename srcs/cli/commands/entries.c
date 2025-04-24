@@ -74,7 +74,7 @@ void	cmd_entries(t_kv_store *store, int argc, char **argv)
 	const char		*column_titles[] = {"key", "value", "test", NULL};
 	
 	rows = 0;
-	init_data_table(&data_table, "Key-Value Store", column_titles);
+	init_data_table(&data_table, store->name, column_titles);
 	data = collect_table_data(store->table, &rows);
 	if (!data)
 	{

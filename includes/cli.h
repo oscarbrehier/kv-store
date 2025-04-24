@@ -5,8 +5,12 @@
 #ifndef CLI_TABLE_H
 # define CLI_TABLE_H
 
+#include "cli_colors.h"
+
 #define DEF_COL_WIDTH 10
 #define MAX_COLS 15
+// #define TABLE_REQUIRED 0x1
+// #define NO_TABLE_ALLOWED 0x2
 
 typedef struct s_table_col {
     char    title[64];
@@ -29,15 +33,32 @@ typedef struct s_data_table {
     t_table_col			columns[MAX_COLS];
 } t_data_table;
 
+typedef void    (*cmd_handler)(t_kv_store *, int, char **);
+
+typedef enum {
+    NO_FLAG = 0,
+    TABLE_REQUIRED = 1,
+    NO_TABLE_ALLOWED = 2
+} t_cmd_flags;
+
 typedef struct s_command
 {
-	char	*cmd;
-	void	(*handler)(t_kv_store *, int, char **);
-	int		table_required;
+	const char  *name;
+    const char  *usage;
+    const char  *description;
+    cmd_handler handler;
+    t_cmd_flags flags;
 } t_command;
 
 void	run_cli(t_kv_store *table);
 void	exec_cmd(t_kv_store *table, int argc, char **argv);
+void	clear_console(void);
+void	pprompt(const char *table_name);
+
+void        register_command(t_command *cmd);
+t_command	*find_command(const char *name);
+void        init_command_sys(void);
+void        cleanup_command_sys(void);
 
 void    display_table(t_data_table table);
 void    display_header(t_data_table table);
@@ -54,5 +75,8 @@ void    cmd_switch(t_kv_store *store, int argc, char **argv);
 void    cmd_create(t_kv_store *store, int argc, char **argv);
 void    cmd_drop(t_kv_store *store, int argc, char **argv);
 void    cmd_rename(t_kv_store *store, int argc, char **argv);
+
+void register_set_command(void);
+void	register_all_commads(void);
 
 #endif
