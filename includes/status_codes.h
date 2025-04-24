@@ -5,7 +5,7 @@
     X(SUCCESS, 0, "OK.") \
     X(WARNING_KEY_EXISTS, 1, "Warning: Key already exists. Value will be updated.") \
     X(ERROR_MEMORY_ALLOCATION, 2, "Error: Failed to allocate memory for key-value pair.") \
-    X(ERROR_MEMORY_REALLOCATION, 3, "Error: Failed to REallocate memory.") \
+    X(ERROR_MEMORY_REALLOCATION, 3, "Error: Failed to Reallocate memory.") \
     X(ERROR_INVALID_INPUT, 4, "Error: Invalid key or value format.") \
     X(ERROR_KEY_NOT_FOUND, 5, "Error: Key not found.") \
     X(ERROR_FILE_OPEN, 6, "Error: Unable to open file for saving data.") \
@@ -21,7 +21,10 @@
     X(ERROR_READ_KEY, 16, "Error : Failed to read key from file.") \
     X(ERROR_READ_VAL, 17, "Error: Failed to read value from file.") \
     X(ERROR_READ_VAL_LEN, 18, "Error: Failed to read value length from file.") \
-    X(ERROR_INIT_TABLE, 19, "Error: Failed to initialize table.")
+    X(ERROR_INIT_TABLE, 19, "Error: Failed to initialize table.") \
+    X(ERROR_TABLE_MISSING, 20, "Error: The specified table could not be found.") \
+    X(ERROR_TABLE_DROP, 21, "Error: Failed to drop the specified table.") \
+    X(ERROR_TABLE_RENAME, 22, "Error: Failed to rename the specified table.")
     
 #define X(name, code, message) name##_CODE = code,
 

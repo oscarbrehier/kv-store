@@ -20,13 +20,13 @@ t_status_code	kv_set(t_kv_table *table, const char *key, const char *value)
 	unsigned int	index;
 	t_kv_pair		*new_pair;
 	t_kv_pair		*current;
-	t_status_code	ft_res;
+	t_status_code	status;
 
 	if (table->size >= table->capacity * 0.75)
 	{
-		ft_res = kv_resize(table);
-		if (ft_res != SUCCESS_CODE)
-			return (ft_res);
+		status = kv_resize(table);
+		if (status != SUCCESS_CODE)
+			return (status);
 	}
 	index = hash(key, table->capacity);
 	current = table->buckets[index];

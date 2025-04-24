@@ -72,7 +72,7 @@ t_status_code	kv_load_file(t_kv_table *table, const char *filename)
 	char			*key;
 	char			*val;
 	char			header[4];
-	t_status_code	ft_res;
+	t_status_code	status;
 
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
@@ -113,9 +113,9 @@ t_status_code	kv_load_file(t_kv_table *table, const char *filename)
 			return (ERROR_READ_VAL_CODE);
 		}
 		val[val_len] = '\0';
-		ft_res = kv_set(table, key, val);
-		if (ft_res != SUCCESS_CODE)
-			return (ft_res);
+		status = kv_set(table, key, val);
+		if (status != SUCCESS_CODE)
+			return (status);
 		free(key);
 		free(val);
 	}

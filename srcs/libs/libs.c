@@ -268,7 +268,7 @@ void formatTimestamp(time_t timestamp, char *buf, size_t buf_size)
 	strftime(buf, buf_size, "%a %Y-%m-%d %H:%M:%S %Z", &ts);
 }
 
-char	*construct_table_path(char *filename, char *path)
+t_status_code	construct_table_path(char *filename, char *path, const char **output)
 {
 	char	ext[] = ".kvdb";
 	char	*fullpath;
@@ -276,9 +276,9 @@ char	*construct_table_path(char *filename, char *path)
 	fullpath = malloc(sizeof(char) * (ft_strlen(path) + ft_strlen(filename) + ft_strlen(ext) + 1));
 	if (!fullpath)
 	{
-		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
-		return (NULL);
+		return (ERROR_MEMORY_ALLOCATION_CODE);
 	}
 	sprintf(fullpath, "%s%s%s", path, filename, ext);
-	return (fullpath);
+	*output = fullpath;
+	return (SUCCESS_CODE);
 } 

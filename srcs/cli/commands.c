@@ -5,7 +5,7 @@
 
 void	handle_set(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	ft_res;
+	t_status_code	status;
 
 	if (argc != 3)
 	{
@@ -17,13 +17,13 @@ void	handle_set(t_kv_store *store, int argc, char **argv)
 		logger(2, "Error: Key contains illegal characters");
 		return ;
 	}
-	ft_res = kv_set(store->table, argv[1], argv[2]);
-	log_message(1, ft_res);
+	status = kv_set(store->table, argv[1], argv[2]);
+	log_message(1, status);
 }
 
 void	handle_get(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	ft_res;
+	t_status_code	status;
 	const char		*value;
 
 	if (argc != 2)
@@ -31,50 +31,50 @@ void	handle_get(t_kv_store *store, int argc, char **argv)
 		logger(2, "Usage: get <key>");
 		return;
 	}
-	ft_res = kv_get(store->table, argv[1], &value);
-	if (ft_res == SUCCESS_CODE && value)
+	status = kv_get(store->table, argv[1], &value);
+	if (status == SUCCESS_CODE && value)
 		logger(2, "%s", (char *)value);
 	else
-		log_message(1, ft_res);
+		log_message(1, status);
 }
 
 void	handle_delete(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	ft_res;
+	t_status_code	status;
 
 	if (argc != 2)
 	{
 		logger(2, "Usage: delete <key>");
 		return;
 	}
-	ft_res = kv_delete(store->table, argv[1]);
-	log_message(1, ft_res);
+	status = kv_delete(store->table, argv[1]);
+	log_message(1, status);
 }
 
 void 	handle_save(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	ft_res;
+	t_status_code	status;
 
 	if (argc != 2)
 	{
 		logger(2, "Usage: save <filename>");
 		return ;
 	}
-	ft_res = kv_save_file(store->table, argv[1]);
-	log_message(1, ft_res);
+	status = kv_save_file(store->table, argv[1]);
+	log_message(1, status);
 }
 
 void	handle_load(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	ft_res;
+	t_status_code	status;
 
 	if (argc != 2)
 	{
 		logger(2, "Usage: save <filename>");
 		return ;
 	}
-	ft_res = kv_load_file(store->table, argv[1]);
-	log_message(1, ft_res);
+	status = kv_load_file(store->table, argv[1]);
+	log_message(1, status);
 }
 
 void	exec_cmd(t_kv_store *store, int argc, char **argv)
@@ -90,6 +90,9 @@ void	exec_cmd(t_kv_store *store, int argc, char **argv)
 		{"list", cmd_list, 0},
 		{"exit", cmd_exit, 1},
 		{"switch", cmd_switch, 0},
+		{"create", cmd_create, 0},
+		{"drop", cmd_drop, 0},
+		{"rename", cmd_rename, 0},
 	};
 
 	i = 0;

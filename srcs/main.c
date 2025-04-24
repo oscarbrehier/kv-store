@@ -31,7 +31,7 @@ int	main(void)
 {
     t_kv_store      *store;
     t_kv_table      *table;
-    t_status_code   ft_res;
+    t_status_code   status;
 
     store = (t_kv_store *)malloc(sizeof(t_kv_store));
     if (!store)
@@ -46,9 +46,9 @@ int	main(void)
         logger(1, "Error: Failed to initialize table");
         return (1);
     }
-    if ((ft_res = kv_load_file(table, "./data/data.kvdb")) != SUCCESS_CODE)
+    if ((status = kv_load_file(table, "./data/data.kvdb")) != SUCCESS_CODE)
     {
-        log_message(1, ft_res);
+        log_message(1, status);
         return (1);
     }
     store->table = table;

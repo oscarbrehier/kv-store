@@ -51,5 +51,8 @@ void	cmd_entries(t_kv_store *store, int argc, char **argv);
 void    cmd_list(t_kv_store *store, int argc, char **argv);
 void    cmd_exit(t_kv_store *store, int argc, char **argv);
 void    cmd_switch(t_kv_store *store, int argc, char **argv);
+void    cmd_create(t_kv_store *store, int argc, char **argv);
+void    cmd_drop(t_kv_store *store, int argc, char **argv);
+void    cmd_rename(t_kv_store *store, int argc, char **argv);
 
 #endif

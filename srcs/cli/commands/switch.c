@@ -4,9 +4,9 @@
 
 void    cmd_switch(t_kv_store *store, int argc, char **argv)
 {
-    char            *file_path;
-    t_kv_table      *temp;
-    t_status_code   ft_res;
+    const char		*file_path;
+    t_kv_table		*temp;
+    t_status_code	status;
 
     kv_init_table(&temp, 8);
     if (!temp)
@@ -19,17 +19,17 @@ void    cmd_switch(t_kv_store *store, int argc, char **argv)
         logger(2, "Usage: switch <store name>");
         return ;
     }
-    file_path = construct_table_path(argv[1], "./data/");
+    construct_table_path(argv[1], "./data/", &file_path);
     if (!file_path)
     {
-        free(file_path);
+        free((void *)file_path);
         return ;
     }
-    ft_res = kv_load_file(temp, file_path);
-    if (ft_res != SUCCESS_CODE)
+    status = kv_load_file(temp, file_path);
+    if (status != SUCCESS_CODE)
     {
-        log_message(1, ft_res);
-        free(file_path);
+        log_message(1, status);
+        free((void *)file_path);
         kv_free_table(store->table);
         free(store);
         return ;
@@ -39,5 +39,5 @@ void    cmd_switch(t_kv_store *store, int argc, char **argv)
     store->table = temp;
     strcpy(store->name, argv[1]);
     log_message(2, SUCCESS_CODE);
-    free(file_path);
+    free((void *)file_path);
 }
