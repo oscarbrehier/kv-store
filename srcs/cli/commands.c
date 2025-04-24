@@ -35,80 +35,6 @@ t_command *find_command(const char *name)
     return ht_get(command_table, name);
 }
 
-void	handle_set(t_kv_store *store, int argc, char **argv)
-{
-	t_status_code	status;
-
-	if (argc != 3)
-	{
-		logger(2, "Usage: set <key> <value>");
-		return;
-	}
-	if (!is_valid_key(argv[1]))
-	{
-		logger(2, "Error: Key contains illegal characters");
-		return ;
-	}
-	status = kv_set(store->table, argv[1], argv[2]);
-	log_message(1, status);
-}
-
-void	handle_get(t_kv_store *store, int argc, char **argv)
-{
-	t_status_code	status;
-	const char		*value;
-
-	if (argc != 2)
-	{
-		logger(2, "Usage: get <key>");
-		return;
-	}
-	status = kv_get(store->table, argv[1], &value);
-	if (status == SUCCESS_CODE && value)
-		logger(2, "%s", (char *)value);
-	else
-		log_message(1, status);
-}
-
-void	handle_delete(t_kv_store *store, int argc, char **argv)
-{
-	t_status_code	status;
-
-	if (argc != 2)
-	{
-		logger(2, "Usage: delete <key>");
-		return;
-	}
-	status = kv_delete(store->table, argv[1]);
-	log_message(1, status);
-}
-
-void 	handle_save(t_kv_store *store, int argc, char **argv)
-{
-	t_status_code	status;
-
-	if (argc != 2)
-	{
-		logger(2, "Usage: save <filename>");
-		return ;
-	}
-	status = kv_save_file(store->table, argv[1]);
-	log_message(1, status);
-}
-
-void	handle_load(t_kv_store *store, int argc, char **argv)
-{
-	t_status_code	status;
-
-	if (argc != 2)
-	{
-		logger(2, "Usage: save <filename>");
-		return ;
-	}
-	status = kv_load_file(store->table, argv[1]);
-	log_message(1, status);
-}
-
 void	cmd_clear(t_kv_store *store, int argc, char **argv)
 {
 	(void)store;
@@ -121,7 +47,8 @@ void	register_all_commads(void)
 {
 	init_command_sys();
 
-	register_set_command();
+	register_kv_store_cmds();
+	register_kv_table_cmds();
 }
 
 void	exec_cmd(t_kv_store *store, int argc, char **argv)

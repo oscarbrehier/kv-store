@@ -120,7 +120,7 @@ static char	***get_data(int *rows)
 	return (data);
 }
 
-void    cmd_list(t_kv_store *store, int argc, char **argv)
+void    handle_list(t_kv_store *store, int argc, char **argv)
 {
     (void)store;
     (void)argc;

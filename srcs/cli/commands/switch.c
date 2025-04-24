@@ -2,7 +2,7 @@
 #include "kv_store.h"
 #include "libs.h"
 
-void    cmd_switch(t_kv_store *store, int argc, char **argv)
+void    handle_switch(t_kv_store *store, int argc, char **argv)
 {
     const char		*file_path;
     t_kv_table		*temp;

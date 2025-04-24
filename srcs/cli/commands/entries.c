@@ -64,7 +64,7 @@ static char	***collect_table_data(t_kv_table *table, int *row_count)
 	return (data);
 }
 
-void	cmd_entries(t_kv_store *store, int argc, char **argv)
+void	handle_entries(t_kv_store *store, int argc, char **argv)
 {
 	(void)argc;
 	(void)argv;

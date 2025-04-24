@@ -68,15 +68,12 @@ int     set_title(t_data_table *table, const char *title);
 void    add_column(t_data_table *table, const char *title);
 void	cleanup_data_table(char ***data, int row);
 
-void	cmd_entries(t_kv_store *store, int argc, char **argv);
-void    cmd_list(t_kv_store *store, int argc, char **argv);
-void    cmd_exit(t_kv_store *store, int argc, char **argv);
-void    cmd_switch(t_kv_store *store, int argc, char **argv);
-void    cmd_create(t_kv_store *store, int argc, char **argv);
-void    cmd_drop(t_kv_store *store, int argc, char **argv);
-void    cmd_rename(t_kv_store *store, int argc, char **argv);
+void	handle_entries(t_kv_store *store, int argc, char **argv);
+void    handle_list(t_kv_store *store, int argc, char **argv);
+void    handle_switch(t_kv_store *store, int argc, char **argv);
 
-void register_set_command(void);
+void	register_kv_table_cmds(void);
+void 	register_kv_store_cmds(void);
 void	register_all_commads(void);
 
 #endif
