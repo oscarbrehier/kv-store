@@ -58,7 +58,7 @@ void	handle_load(t_kv_store *store, int argc, char **argv)
 	log_message(1, status);
 }
 
-void    register_kv_store_cmds(void)
+void    kv_store_commands(void)
 {
     size_t              i;
     static t_command    commands[] = {

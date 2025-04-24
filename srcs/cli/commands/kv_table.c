@@ -75,7 +75,7 @@ void    handle_exit(t_kv_store *store, int argc, char **argv)
     log_message(1, status);
 }
 
-void	register_kv_table_cmds(void)
+void	kv_table_commands(void)
 {
 	size_t				i;
 	static t_command 	commands[] = {

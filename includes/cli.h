@@ -7,10 +7,10 @@
 
 #include "cli_colors.h"
 
+typedef struct s_hashtable t_hashtable;
+
 #define DEF_COL_WIDTH 10
 #define MAX_COLS 15
-// #define TABLE_REQUIRED 0x1
-// #define NO_TABLE_ALLOWED 0x2
 
 typedef struct s_table_col {
     char    title[64];
@@ -50,15 +50,18 @@ typedef struct s_command
     t_cmd_flags flags;
 } t_command;
 
+extern t_hashtable *command_table;
+
+int     init_cli(void);
 void	run_cli(t_kv_store *table);
 void	exec_cmd(t_kv_store *table, int argc, char **argv);
 void	clear_console(void);
 void	pprompt(const char *table_name);
 
-void        register_command(t_command *cmd);
-t_command	*find_command(const char *name);
-void        init_command_sys(void);
-void        cleanup_command_sys(void);
+int				init_command_table(void);
+t_status_code	register_command(t_command *cmd);
+t_command		*find_command(const char *name);
+void			cleanup_command_sys(void);
 
 void    display_table(t_data_table table);
 void    display_header(t_data_table table);
@@ -72,8 +75,9 @@ void	handle_entries(t_kv_store *store, int argc, char **argv);
 void    handle_list(t_kv_store *store, int argc, char **argv);
 void    handle_switch(t_kv_store *store, int argc, char **argv);
 
-void	register_kv_table_cmds(void);
-void 	register_kv_store_cmds(void);
-void	register_all_commads(void);
+void	kv_table_commands(void);
+void 	kv_store_commands(void);
+void    utility_commands(void);
+void	register_all_commands(void);
 
 #endif

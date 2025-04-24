@@ -24,7 +24,11 @@
     X(ERROR_INIT_TABLE, 19, "Error: Failed to initialize table.") \
     X(ERROR_TABLE_MISSING, 20, "Error: The specified table could not be found.") \
     X(ERROR_TABLE_DROP, 21, "Error: Failed to drop the specified table.") \
-    X(ERROR_TABLE_RENAME, 22, "Error: Failed to rename the specified table.")
+    X(ERROR_TABLE_RENAME, 22, "Error: Failed to rename the specified table.") \
+    X(ERROR_UNEXPECTED, 22, "Error: An unexpected error occurred.") \
+    X(ERROR_COMMAND_TABLE_MISSING, 23, "Error: Command table has not been initalized.") \
+    X(ERROR_COMMAND_STRUCT_NOT_FOUND, 24, "Error: Command not found.") \
+    X(ERROR_COMMAND_NAME_MISSING, 25, "Error: Command name is missing.")
     
 #define X(name, code, message) name##_CODE = code,
 

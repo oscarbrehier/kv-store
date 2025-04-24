@@ -6,10 +6,10 @@
 
 void	read_input(char **input)
 {
-	char *temp;
-	int c;
-	int capacity;
-	int length;
+	int		c;
+	int 	capacity;
+	int		length;
+	char	*temp;
 
 	capacity = 1;
 	length = 0;
@@ -46,7 +46,7 @@ void	read_input(char **input)
 
 int	parse_input(char *input, char ***args)
 {
-	int argc;
+	int	argc;
 	int i;
 	int j;
 	int k;
@@ -116,6 +116,23 @@ void	clear_console(void)
     #endif
 }
 
+int	init_cli(void)
+{
+	clear_console();
+	if (init_command_table() != 0)
+	{
+		logger(1, "Error: Failed to register commands");
+		return (1);
+	}
+
+	// Register all commands
+	kv_store_commands();
+	utility_commands();
+	kv_table_commands();
+
+	return (0);
+}
+
 void run_cli(t_kv_store *store)
 {
 	int		argc;
@@ -126,17 +143,9 @@ void run_cli(t_kv_store *store)
 	input = NULL;
 	argc = 0;
 	argv = NULL;
-	clear_console();
-	register_all_commads();
 	while (1)
 	{
-		// if (ft_strlen(store->name) > 0)
-		// 	// printf(BRIGHT_BLUE "kv " RESET "(" GREEN BOLD "%s" RESET ")> ", store->name);
-		// 	printf(BRIGHT_BLUE BOLD "kv:(" RESET GREEN BOLD "%s" BRIGHT_BLUE ") " RESET, store->name);
-		// else
-		// 	printf(RESET BRIGHT_BLUE BOLD "kv: " RESET);
 		pprompt(store->name);
-
 		read_input(&input);
 		if (!input)
 		{
