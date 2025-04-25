@@ -2,13 +2,12 @@
 #include "kv_table.h"
 #include "libs.h"
 #include "cli.h"
-#include "hashtable.h"
 
-t_hashtable *command_table = NULL;
+t_kv_table *command_table = NULL;
 
 int	init_command_table(void)
 {
-	command_table = ht_create(64);
+	kv_init_table(&command_table, 32);
 	if (!command_table)
 		return (1);
 	return (0);
@@ -17,7 +16,7 @@ int	init_command_table(void)
 void cleanup_command_sys(void)
 {
     if (command_table) {
-        ht_destroy(command_table);
+        kv_free_table(command_table);
         command_table = NULL;
     }
 }
@@ -30,16 +29,21 @@ t_status_code	register_command(t_command *cmd)
 		return (ERROR_COMMAND_STRUCT_NOT_FOUND_CODE);
 	else if (!cmd->name)
 		return (ERROR_COMMAND_NAME_MISSING_CODE);
-    ht_set(command_table, cmd->name, cmd);
-	return (SUCCESS_CODE);
+	return kv_set(command_table, cmd->name, cmd, sizeof(t_command), COMMAND);
 }
 
 t_command *find_command(const char *name)
 {
+	void	*value;
+
     if (!command_table || !name)
-        return NULL;
-        
-    return ht_get(command_table, name);
+    {
+		return (NULL);
+	}
+	value = NULL;
+	if (kv_get(command_table, name, &value, COMMAND) != SUCCESS_CODE)
+		return (NULL);
+    return (t_command *)value;
 }
 
 void	exec_cmd(t_kv_store *store, int argc, char **argv)

@@ -7,8 +7,6 @@
 
 #include "cli_colors.h"
 
-typedef struct s_hashtable t_hashtable;
-
 #define DEF_COL_WIDTH 10
 #define MAX_COLS 15
 
@@ -50,7 +48,7 @@ typedef struct s_command
     t_cmd_flags flags;
 } t_command;
 
-extern t_hashtable *command_table;
+extern t_kv_table *command_table;
 
 int     init_cli(void);
 void	run_cli(t_kv_store *table);
