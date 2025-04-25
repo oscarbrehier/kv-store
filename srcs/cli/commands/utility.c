@@ -1,5 +1,6 @@
 #include "kv_store.h"
 #include "cli.h"
+#include "hashtable.h"
 
 void	handle_clear(t_kv_store *store, int argc, char **argv)
 {
@@ -7,6 +8,31 @@ void	handle_clear(t_kv_store *store, int argc, char **argv)
 	(void)argc;
 	(void)argv;
 	clear_console();
+}
+
+void    handle_help(t_kv_store *store, int argc, char **argv)
+{
+    (void)store;
+	(void)argc;
+	(void)argv;
+	size_t		i;
+    t_ht_entry	*current;
+    t_ht_entry	*next;
+	t_command	*cmd;
+
+	i = 0;
+	while (i < command_table->size)
+	{
+		current = command_table->entries[i];
+		while (current)
+		{
+			next = current->next;
+			cmd = current->value;
+			printf("%s				%s\n", cmd->name, cmd->usage);
+			current = next;	
+		}
+		i++;
+	}
 }
 
 int	utility_commands(void)
@@ -20,7 +46,14 @@ int	utility_commands(void)
             .description = "",
             .handler = handle_clear,
             .flags = NO_FLAG
-        }
+        },
+		{
+			.name = "help",
+			.usage = "help",
+			.description = "",
+			.handler = handle_help,
+			.flags = NO_FLAG
+		}
     };
 
     i = 0;

@@ -50,7 +50,10 @@ void	exec_cmd(t_kv_store *store, int argc, char **argv)
 		return ;
 	cmd = find_command(argv[0]);
 	if (!cmd)
+	{
+		logger(1, "%s: command not found", argv[0]);
 		return ;
+	}
 	if ((cmd->flags & TABLE_REQUIRED) && !store->table)
 	{
 		logger(1, "Error: No store has been selected.");

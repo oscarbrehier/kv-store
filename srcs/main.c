@@ -18,6 +18,7 @@ void kv_free_table(t_kv_table *table)
         while (current)
         {
             next = current->next;
+            free(current->value);
             free(current);
             current = next;
         }
@@ -46,13 +47,10 @@ int	main(void)
     //     logger(1, "Error: Failed to initialize table");
     //     return (1);
     // }
-    // if ((status = kv_load_file(table, "./data/data.kvdb")) != SUCCESS_CODE)
-    // {
-    //     log_message(1, status);
-    //     return (1);
-    // }
     // store->table = table;
-    // strcpy(store->name, "data");
+    // strcpy(store->name, "test");
+    // kv_set(table, "hello", "world", 5, STRING);
+
     store->table = NULL;
     store->name[0] = '\0';
     if (init_cli() == 0)

@@ -15,7 +15,7 @@ unsigned int hash(const char *key, size_t capacity)
 	return ((hash % capacity + capacity) % capacity);
 }
 
-t_status_code	kv_set(t_kv_table *table, const char *key, const char *value)
+t_status_code	kv_set(t_kv_table *table, const char *key, void *value, size_t value_size, t_kv_type type)
 {
 	unsigned int	index;
 	t_kv_pair		*new_pair;
@@ -34,8 +34,15 @@ t_status_code	kv_set(t_kv_table *table, const char *key, const char *value)
 	{
 		if (strcmp(current->key, key) == 0)
 		{
-			strncpy(current->value, value, sizeof(current->value) - 1);
-			current->value[sizeof(current->value) - 1] = '\0';
+			// strncpy(current->value, value, sizeof(current->value) - 1);
+			// current->value[sizeof(current->value) - 1] = '\0';
+			free(current->value);
+			current->value = malloc(value_size);
+			if (!current->value)
+				return (ERROR_MEMORY_REALLOCATION_CODE);
+			memcpy(current->value, value, value_size);
+			current->value_size = value_size;
+			current->type = type;
 			return (WARNING_KEY_EXISTS_CODE);
 		}
 		current = current->next;
@@ -45,17 +52,29 @@ t_status_code	kv_set(t_kv_table *table, const char *key, const char *value)
 	{
 		return (ERROR_MEMORY_ALLOCATION_CODE);
 	}
+	// strncpy(new_pair->key, key, sizeof(new_pair->key) - 1);
+	// strncpy(new_pair->value, value, sizeof(new_pair->value) - 1);
+	// new_pair->key[sizeof(new_pair->key) - 1] = '\0';
+	// new_pair->value[sizeof(new_pair->value) - 1] = '\0';
 	strncpy(new_pair->key, key, sizeof(new_pair->key) - 1);
-	strncpy(new_pair->value, value, sizeof(new_pair->value) - 1);
 	new_pair->key[sizeof(new_pair->key) - 1] = '\0';
-	new_pair->value[sizeof(new_pair->value) - 1] = '\0';
+	new_pair->value = malloc(value_size + 1);
+	if (!new_pair->value)
+	{
+		free(new_pair);
+		return (ERROR_MEMORY_ALLOCATION_CODE);
+	}
+	memcpy(new_pair->value, value, value_size);
+	((char *)new_pair->value)[value_size] = '\0';
+	new_pair->value_size = value_size;
+	new_pair->type = type;
 	new_pair->next = table->buckets[index];
 	table->buckets[index] = new_pair;
 	table->size++;
 	return (SUCCESS_CODE);
 }
 
-t_status_code	kv_get(t_kv_table *table, const char *key, const char **output)
+t_status_code	kv_get(t_kv_table *table, const char *key, void **output, t_kv_type type)
 {
 	unsigned int index;
 	t_kv_pair *current;
@@ -68,8 +87,13 @@ t_status_code	kv_get(t_kv_table *table, const char *key, const char **output)
 	{
 		if (strcmp(current->key, key) == 0)
 		{
-			*output = current->value;
-			return (SUCCESS_CODE);
+			if (current->type == type)
+			{
+				*output = current->value;
+				return (SUCCESS_CODE);
+			}
+			else
+				return (ERROR_VALUE_TYPE_MISMATCH_CODE);
 		}
 		current = current->next;
 	}
@@ -170,7 +194,7 @@ t_status_code    kv_resize(t_kv_table *table)
         node = table->buckets[i];
         while (node)
         {
-            result = kv_set(table, node->key, node->value);
+            result = kv_set(table, node->key, node->value, node->value_size, node->type);
             if (result != SUCCESS_CODE)
             {
                 revert_resize(table, old_buckets, old_capacity);

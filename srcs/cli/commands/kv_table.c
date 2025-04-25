@@ -16,7 +16,7 @@ void	handle_set(t_kv_store *store, int argc, char **argv)
 		logger(2, "Error: Key contains illegal characters");
 		return ;
 	}
-	status = kv_set(store->table, argv[1], argv[2]);
+	status = kv_set(store->table, argv[1], (void *)argv[2], ft_strlen(argv[2]), STRING);
 	log_message(1, status);
 }
 
@@ -30,7 +30,7 @@ void	handle_get(t_kv_store *store, int argc, char **argv)
 		logger(2, "Usage: get <key>");
 		return;
 	}
-	status = kv_get(store->table, argv[1], &value);
+	status = kv_get(store->table, argv[1], (void *)&value, STRING);
 	if (status == SUCCESS_CODE && value)
 		logger(2, "%s", (char *)value);
 	else

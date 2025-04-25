@@ -11,13 +11,15 @@ static int	populate_row_data(char **row_data, t_kv_pair *pair)
 		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
 		return (-1);
 	}
-	row_data[1] = strdup(pair->value);
+	row_data[1] = malloc(sizeof(char) * (pair->value_size + 1));
 	if (!row_data[1])
 	{
 		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
 		free(row_data[0]);
 		return (-1);
 	}
+	memcpy(row_data[1], pair->value, pair->value_size);
+	row_data[1][pair->value_size] = '\0'; 
 	row_data[2] = NULL;
 	return (0);
 }

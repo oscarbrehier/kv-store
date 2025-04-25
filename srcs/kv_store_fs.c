@@ -113,7 +113,7 @@ t_status_code	kv_load_file(t_kv_table *table, const char *filename)
 			return (ERROR_READ_VAL_CODE);
 		}
 		val[val_len] = '\0';
-		status = kv_set(table, key, val);
+		status = kv_set(table, key, val, ft_strlen(val), STRING);
 		if (status != SUCCESS_CODE)
 			return (status);
 		free(key);

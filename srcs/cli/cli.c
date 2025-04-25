@@ -56,8 +56,6 @@ void	parse_input(char *input, int *argc, char ***argv)
 	arg_l = 0;
 	arg_i = 0;
 	*argc = count_words(input);
-	if (*argc > 3)
-		*argc = 3;
 	*argv = malloc(sizeof(char *) * (*argc + 1));
 	if (!*argv)
 		return ;
