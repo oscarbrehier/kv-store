@@ -44,9 +44,8 @@ void	read_input(char **input)
 	}
 }
 
-int	parse_input(char *input, char ***args)
+void	parse_input(char *input, int *argc, char ***argv)
 {
-	int	argc;
 	int i;
 	int j;
 	int k;
@@ -56,13 +55,13 @@ int	parse_input(char *input, char ***args)
 	i = 0;
 	arg_l = 0;
 	arg_i = 0;
-	argc = count_words(input);
-	if (argc > 3)
-		argc = 3;
-	*args = malloc(sizeof(char *) * (argc + 1));
-	if (!*args)
-		return (0);
-	while (input[i] && arg_i < argc)
+	*argc = count_words(input);
+	if (*argc > 3)
+		*argc = 3;
+	*argv = malloc(sizeof(char *) * (*argc + 1));
+	if (!*argv)
+		return ;
+	while (input[i] && arg_i < *argc)
 	{
 		if (is_space(input[i]))
 		{
@@ -76,27 +75,26 @@ int	parse_input(char *input, char ***args)
 			arg_l++;
 			i++;
 		}
-		(*args)[arg_i] = malloc(sizeof(char) * (arg_l + 1));
-		if (!(*args)[arg_i])
+		(*argv)[arg_i] = malloc(sizeof(char) * (arg_l + 1));
+		if (!(*argv)[arg_i])
 		{
 			k = 0;
 			while (k < arg_i)
-				free((*args)[k++]);
-			free(*args);
-			*args = NULL;
-			return (0);
+				free((*argv)[k++]);
+			free(*argv);
+			*argv = NULL;
+			return ;
 		}
 		j = 0;
 		while (j < arg_l)
 		{
-			(*args)[arg_i][j] = input[i - arg_l + j];
+			(*argv)[arg_i][j] = input[i - arg_l + j];
 			j++;
 		}
-		(*args)[arg_i][j] = '\0';
+		(*argv)[arg_i][j] = '\0';
 		arg_i++;	
 	}
-	(*args)[arg_i] = NULL;
-	return (argc);
+	(*argv)[arg_i] = NULL;
 }
 
 void	pprompt(const char *table_name)
@@ -120,74 +118,80 @@ int	init_cli(void)
 {
 	clear_console();
 	if (init_command_table() != 0)
-	{
-		logger(1, "Error: Failed to register commands");
-		return (1);
-	}
+		goto command_error;
 
-	// Register all commands
-	kv_store_commands();
-	utility_commands();
-	kv_table_commands();
+	// Register commands
+	if (kv_store_commands() != 0)
+		goto command_error;
+	if (utility_commands() != 0)
+		goto command_error;
+	if (kv_table_commands() != 0)
+		goto command_error;
 
 	return (0);
+command_error:
+	logger(1, "Error: Failed to initialize CLI");
+	return (1);
 }
 
-void run_cli(t_kv_store *store)
+void	free_argv(char **argv)
 {
-	int		argc;
-	char	**argv;
+	int	i;
+
+	if (!argv)
+		return ;
+	i = 0;
+	while (argv[i])
+	{
+		free(argv[i]);
+		i++;
+	}
+	free(argv);
+}
+
+
+void	destroy_cli(void)
+{
+	cleanup_command_sys();
+}
+
+void	run_cli(t_kv_store *store)
+{
 	char	*input;
-	int		i;
+	char	**argv;
+	int		argc;
 
 	input = NULL;
-	argc = 0;
 	argv = NULL;
+	argc = 0;
 	while (1)
 	{
 		pprompt(store->name);
 		read_input(&input);
 		if (!input)
 		{
-			logger(1, "Error");
-			continue;
+			logger(1, "Error: Failed to read user input");
+			continue ;
 		}
-		argc = parse_input(input, &argv);
-		if (!argc)
+		parse_input(input, &argc, &argv);
+		if (argc == 0)
 		{
 			free(input);
-			i = 0;
-			while (argv[i])
-			{
-				free(argv[i]);
-				i++;
-			}
-			free(argv);
+			free_argv(argv);
 			input = NULL;
 			argv = NULL;
-			continue;
+			continue ;
 		}
 		if (ft_strcmp(argv[0], "quit") == 0)
 		{
 			free(input);
-			i = 0;
-			while (argv[i])
-			{
-				free(argv[i]);
-				i++;
-			}
-			free(argv);
-			break;	
+			free_argv(argv);
+			destroy_cli();
+			break ;
 		}
 		exec_cmd(store, argc, argv);
 		free(input);
-		i = 0;
-		while (argv[i])
-		{
-			free(argv[i]);
-			i++;
-		}
-		free(argv);
+		free_argv(argv);
 		input = NULL;
 		argv = NULL;
 	}

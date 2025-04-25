@@ -75,9 +75,8 @@ void	handle_entries(t_kv_store *store, int argc, char **argv);
 void    handle_list(t_kv_store *store, int argc, char **argv);
 void    handle_switch(t_kv_store *store, int argc, char **argv);
 
-void	kv_table_commands(void);
-void 	kv_store_commands(void);
-void    utility_commands(void);
-void	register_all_commands(void);
+int		kv_table_commands(void);
+int		kv_store_commands(void);
+int		utility_commands(void);
 
 #endif

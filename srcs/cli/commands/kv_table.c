@@ -75,9 +75,10 @@ void    handle_exit(t_kv_store *store, int argc, char **argv)
     log_message(1, status);
 }
 
-void	kv_table_commands(void)
+int	kv_table_commands(void)
 {
 	size_t				i;
+	t_status_code		status;
 	static t_command 	commands[] = {
 		{
 			.name = "set",
@@ -126,7 +127,10 @@ void	kv_table_commands(void)
 	i = 0;
 	while (i < sizeof(commands) / sizeof(commands[i]))
 	{
-		register_command(&commands[i]);
+		status = register_command(&commands[i]);
+		if (status != SUCCESS_CODE)
+			return (1);
 		i++;
 	}
+	return (0);
 }

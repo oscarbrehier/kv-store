@@ -9,9 +9,10 @@ void	handle_clear(t_kv_store *store, int argc, char **argv)
 	clear_console();
 }
 
-void    utility_commands(void)
+int	utility_commands(void)
 {
     size_t				i;
+	t_status_code		status;
     static t_command	commands[] = {
         {
             .name = "clear",
@@ -25,7 +26,10 @@ void    utility_commands(void)
     i = 0;
     while (i < sizeof(commands) / sizeof(commands[0]))
     {
-        register_command(&commands[i]);
+        status = register_command(&commands[i]);
+		if (status != SUCCESS_CODE)
+			return (1);
         i++;
     }
+	return (0);
 }

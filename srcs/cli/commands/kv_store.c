@@ -58,10 +58,11 @@ void	handle_load(t_kv_store *store, int argc, char **argv)
 	log_message(1, status);
 }
 
-void    kv_store_commands(void)
+int	kv_store_commands(void)
 {
-    size_t              i;
-    static t_command    commands[] = {
+    size_t				i;
+    t_status_code		status;
+    static t_command	commands[] = {
         {
             .name = "list",
             .usage = "list",
@@ -109,7 +110,12 @@ void    kv_store_commands(void)
     i = 0;
     while (i < sizeof(commands) / sizeof(commands[0]))
     {
-        register_command(&commands[i]);
+        status = register_command(&commands[i]);
+        if (status != SUCCESS_CODE)
+		{
+			return (1);
+		}
         i++;
     }
+	return (0);
 }
