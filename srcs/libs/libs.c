@@ -282,3 +282,39 @@ t_status_code	construct_table_path(char *filename, char *path, const char **outp
 	*output = fullpath;
 	return (SUCCESS_CODE);
 } 
+
+int	intlen(long int nbr)
+{
+	int	len;
+
+	len = 1;
+	while (nbr / 10)
+		len++;
+	return (len);
+}
+
+char	*ft_itoa(int n)
+{
+	long int	nbr;
+	int			len;
+	char		*str;
+
+	nbr = n;
+	len = intlen(nbr);
+	if (n < 0)
+		len++;
+	str = malloc(sizeof(char) * (len + 1));
+	if (!str)
+		return (NULL);
+	str[len] = '\0';
+	if (nbr < 0)
+		nbr = -nbr;
+	while (len--)
+	{
+		str[len] = nbr % 10 + '0';
+		nbr /= 10;
+	}
+	if (n < 0)
+		str[0] = '-';
+	return (str);
+}

@@ -76,5 +76,6 @@ void    handle_switch(t_kv_store *store, int argc, char **argv);
 int		kv_table_commands(void);
 int		kv_store_commands(void);
 int		utility_commands(void);
+int		kv_string_ops_commands(void);
 
 #endif

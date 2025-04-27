@@ -116,20 +116,26 @@ int	init_shell(void)
 {
 	clear_console();
 	if (init_command_table() != 0)
-		goto command_error;
+		goto error;
 
 	// Register commands
 	if (kv_store_commands() != 0)
-		goto command_error;
-	if (utility_commands() != 0)
-		goto command_error;
+		goto error;
 	if (kv_table_commands() != 0)
-		goto command_error;
-
+		goto error;
+	if (kv_string_ops_commands() != 0)
+		goto error;
+	if (utility_commands() != 0)
+		goto error;
 	return (0);
-command_error:
+error:
 	logger(1, "Error: Failed to initialize SHELL");
 	return (1);
+}
+
+void	destroy_shell(void)
+{
+	cleanup_command_sys();
 }
 
 void	free_argv(char **argv)
@@ -147,17 +153,11 @@ void	free_argv(char **argv)
 	free(argv);
 }
 
-
-void	destroy_shell(void)
-{
-	cleanup_command_sys();
-}
-
 void	run_shell(t_kv_store *store)
 {
-	char	*input;
-	char	**argv;
-	int		argc;
+	char		*input;
+	char		**argv;
+	int			argc;
 
 	input = NULL;
 	argv = NULL;

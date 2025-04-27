@@ -29,7 +29,8 @@
     X(ERROR_COMMAND_TABLE_MISSING, 23, "Error: Command table has not been initalized.") \
     X(ERROR_COMMAND_STRUCT_NOT_FOUND, 24, "Error: Command not found.") \
     X(ERROR_COMMAND_NAME_MISSING, 25, "Error: Command name is missing.") \
-    X(ERROR_VALUE_TYPE_MISMATCH, 26, "Error: Value type mismatch.")
+    X(ERROR_VALUE_TYPE_MISMATCH, 26, "Error: Value type mismatch.") \
+    X(ERROR_STR_TO_INT, 27, "Error: Failed to convert string to integer.")
     
 #define X(name, code, message) name##_CODE = code,
 
