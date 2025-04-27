@@ -1,6 +1,6 @@
 #include "kv_store.h"
 #include "kv_table.h"
-#include "cli.h"
+#include "shell.h"
 
 void	handle_set(t_kv_store *store, int argc, char **argv)
 {

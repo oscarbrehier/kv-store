@@ -1,7 +1,7 @@
 #include "kv_store.h"
 #include "kv_table.h"
 #include "libs.h"
-#include "cli.h"
+#include "shell.h"
 #include "utils.h"
 
 void	read_input(char **input)
@@ -112,7 +112,7 @@ void	clear_console(void)
     #endif
 }
 
-int	init_cli(void)
+int	init_shell(void)
 {
 	clear_console();
 	if (init_command_table() != 0)
@@ -128,7 +128,7 @@ int	init_cli(void)
 
 	return (0);
 command_error:
-	logger(1, "Error: Failed to initialize CLI");
+	logger(1, "Error: Failed to initialize SHELL");
 	return (1);
 }
 
@@ -148,12 +148,12 @@ void	free_argv(char **argv)
 }
 
 
-void	destroy_cli(void)
+void	destroy_shell(void)
 {
 	cleanup_command_sys();
 }
 
-void	run_cli(t_kv_store *store)
+void	run_shell(t_kv_store *store)
 {
 	char	*input;
 	char	**argv;
@@ -184,7 +184,7 @@ void	run_cli(t_kv_store *store)
 		{
 			free(input);
 			free_argv(argv);
-			destroy_cli();
+			destroy_shell();
 			break ;
 		}
 		exec_cmd(store, argc, argv);

@@ -1,5 +1,5 @@
 #include "kv_store.h"
-#include "cli.h"
+#include "shell.h"
 
 void	handle_clear(t_kv_store *store, int argc, char **argv)
 {
@@ -16,19 +16,17 @@ void    handle_help(t_kv_store *store, int argc, char **argv)
 	(void)argv;
 	int			i;
     t_kv_pair	*current;
-    t_kv_pair	*next;
 	t_command	*cmd;
 
 	i = 0;
-	while (i < command_table->size)
+	while (i < command_table->capacity)
 	{
 		current = command_table->buckets[i];
 		while (current)
 		{
-			next = current->next;
 			cmd = current->value;
 			printf("%s				%s\n", cmd->name, cmd->usage);
-			current = next;	
+			current = current->next;	
 		}
 		i++;
 	}

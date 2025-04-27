@@ -2,10 +2,10 @@
 #include "kv_table.h"
 #include "libs.h"
 
-#ifndef CLI_TABLE_H
-# define CLI_TABLE_H
+#ifndef SHELL_TABLE_H
+# define SHELL_TABLE_H
 
-#include "cli_colors.h"
+#include "shell_colors.h"
 
 #define DEF_COL_WIDTH 10
 #define MAX_COLS 15
@@ -50,8 +50,8 @@ typedef struct s_command
 
 extern t_kv_table *command_table;
 
-int     init_cli(void);
-void	run_cli(t_kv_store *table);
+int     init_shell(void);
+void	run_shell(t_kv_store *table);
 void	exec_cmd(t_kv_store *table, int argc, char **argv);
 void	clear_console(void);
 void	pprompt(const char *table_name);

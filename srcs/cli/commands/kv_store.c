@@ -1,7 +1,7 @@
 #include "kv_store.h"
 #include "status_codes.h"
 #include "libs.h"
-#include "cli.h"
+#include "shell.h"
 
 void    handle_create(t_kv_store *store, int argc, char **argv)
 {

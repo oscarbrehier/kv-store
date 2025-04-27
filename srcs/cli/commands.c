@@ -1,7 +1,7 @@
 #include "kv_store.h"
 #include "kv_table.h"
 #include "libs.h"
-#include "cli.h"
+#include "shell.h"
 
 t_kv_table *command_table = NULL;
 

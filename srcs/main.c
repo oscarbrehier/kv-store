@@ -2,7 +2,7 @@
 #include "kv_table.h"
 #include "status_codes.h"
 #include "libs.h"
-#include "cli.h"
+#include "shell.h"
 
 void kv_free_table(t_kv_table *table)
 {
@@ -53,9 +53,9 @@ int	main(void)
 
     store->table = NULL;
     store->name[0] = '\0';
-    if (init_cli() == 0)
+    if (init_shell() == 0)
     {
-        run_cli(store);
+        run_shell(store);
     }
 	kv_free_table(store->table);
     free(store);

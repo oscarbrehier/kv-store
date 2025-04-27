@@ -1,5 +1,5 @@
-#ifndef CLI_COLORS_H
-# define CLI_COLORS_H
+#ifndef SHELL_COLORS_H
+# define SHELL_COLORS_H
 
 #define RESET       "\033[0m"
 

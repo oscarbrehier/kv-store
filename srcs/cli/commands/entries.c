@@ -1,7 +1,7 @@
 #include "kv_store.h"
 #include "kv_table.h"
 #include "libs.h"
-#include "cli.h"
+#include "shell.h"
 
 static int	populate_row_data(char **row_data, t_kv_pair *pair)
 {

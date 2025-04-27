@@ -1,7 +1,7 @@
 #include "utils.h"
 #include "kv_table.h"
 #include "libs.h"
-#include "cli.h"
+#include "shell.h"
 
 char	*get_store_name(char *dirname)
 {
