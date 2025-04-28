@@ -55,6 +55,8 @@ void	run_shell(t_kv_store *table);
 void	exec_cmd(t_kv_store *table, int argc, char **argv);
 void	clear_console(void);
 void	pprompt(const char *table_name);
+void    parse_input(char *input, int *argc, char ***argv);
+void	free_argv(char **argv);
 
 int				init_command_table(void);
 t_status_code	register_command(t_command *cmd);

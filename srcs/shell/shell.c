@@ -44,56 +44,56 @@ void	read_input(char **input)
 	}
 }
 
-void	parse_input(char *input, int *argc, char ***argv)
-{
-	int i;
-	int j;
-	int k;
-	int arg_l;
-	int arg_i;
+// void	parse_input(char *input, int *argc, char ***argv)
+// {
+// 	int i;
+// 	int j;
+// 	int k;
+// 	int arg_l;
+// 	int arg_i;
 
-	i = 0;
-	arg_l = 0;
-	arg_i = 0;
-	*argc = count_words(input);
-	*argv = malloc(sizeof(char *) * (*argc + 1));
-	if (!*argv)
-		return ;
-	while (input[i] && arg_i < *argc)
-	{
-		if (is_space(input[i]))
-		{
-			i++;
-			continue;
-		}
+// 	i = 0;
+// 	arg_l = 0;
+// 	arg_i = 0;
+// 	*argc = count_words(input);
+// 	*argv = malloc(sizeof(char *) * (*argc + 1));
+// 	if (!*argv)
+// 		return ;
+// 	while (input[i] && arg_i < *argc)
+// 	{
+// 		if (is_space(input[i]))
+// 		{
+// 			i++;
+// 			continue;
+// 		}
 		
-		arg_l = 0;
-		while (input[i] && !is_space(input[i]))
-		{
-			arg_l++;
-			i++;
-		}
-		(*argv)[arg_i] = malloc(sizeof(char) * (arg_l + 1));
-		if (!(*argv)[arg_i])
-		{
-			k = 0;
-			while (k < arg_i)
-				free((*argv)[k++]);
-			free(*argv);
-			*argv = NULL;
-			return ;
-		}
-		j = 0;
-		while (j < arg_l)
-		{
-			(*argv)[arg_i][j] = input[i - arg_l + j];
-			j++;
-		}
-		(*argv)[arg_i][j] = '\0';
-		arg_i++;	
-	}
-	(*argv)[arg_i] = NULL;
-}
+// 		arg_l = 0;
+// 		while (input[i] && !is_space(input[i]))
+// 		{
+// 			arg_l++;
+// 			i++;
+// 		}
+// 		(*argv)[arg_i] = malloc(sizeof(char) * (arg_l + 1));
+// 		if (!(*argv)[arg_i])
+// 		{
+// 			k = 0;
+// 			while (k < arg_i)
+// 				free((*argv)[k++]);
+// 			free(*argv);
+// 			*argv = NULL;
+// 			return ;
+// 		}
+// 		j = 0;
+// 		while (j < arg_l)
+// 		{
+// 			(*argv)[arg_i][j] = input[i - arg_l + j];
+// 			j++;
+// 		}
+// 		(*argv)[arg_i][j] = '\0';
+// 		arg_i++;	
+// 	}
+// 	(*argv)[arg_i] = NULL;
+// }
 
 void	pprompt(const char *table_name)
 {

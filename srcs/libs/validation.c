@@ -14,6 +14,11 @@ int	is_space(char c)
 	return (0);
 }
 
+int is_quote(char c)
+{
+    return (c == '"' || c == '\'');
+}
+
 int is_valid_key(const char *key)
 {
     int i;

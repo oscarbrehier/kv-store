@@ -70,6 +70,19 @@ void    handle_decr_by(t_kv_store *store, int argc, char **argv)
     log_message(1, status);
 }
 
+void	handle_append(t_kv_store *store, int argc, char **argv)
+{
+	t_status_code	status;
+
+	if (argc != 3)
+	{
+		logger(2, "Usage: append <key> <value>");
+		return ;
+	}
+	status = kv_append(store->table, argv[1], argv[2]);
+	log_message(1, status);
+}
+
 int kv_string_ops_commands(void)
 {
     size_t      i;
@@ -101,6 +114,13 @@ int kv_string_ops_commands(void)
             .usage = "decrby <key> <increment>",
             .description = "",
             .handler = handle_decr_by,
+            .flags = TABLE_REQUIRED
+        },
+        {
+            .name = "append",
+            .usage = "append <key> <value>",
+            .description = "",
+            .handler = handle_append,
             .flags = TABLE_REQUIRED
         },
     };

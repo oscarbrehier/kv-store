@@ -17,7 +17,9 @@ int				ft_strcmp(char *s1, char *s2);
 int 			count_words(char *str);
 int				is_space(char c);
 int 			is_valid_key(const char *key);
+int             is_quote(char c);
 int				intlen(long int nbr);
 t_status_code	construct_table_path(char *filename, char *path, const char **output);
+
 
 #endif
