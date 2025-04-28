@@ -289,7 +289,10 @@ int	intlen(long int nbr)
 
 	len = 1;
 	while (nbr / 10)
+	{
 		len++;
+		nbr /= 10;
+	}
 	return (len);
 }
 

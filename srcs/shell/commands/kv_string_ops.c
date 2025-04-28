@@ -28,6 +28,47 @@ void    handle_decr(t_kv_store *store, int argc, char **argv)
     log_message(1, status);
 }
 
+void    handle_incr_by(t_kv_store *store, int argc, char **argv)
+{
+    t_status_code	status;
+	int				number;
+    char			*endptr;
+
+    if (argc != 3)
+    {
+        logger(2, "Usage: incr <key> <increment>");
+        return ;
+    }
+    number = strtol(argv[2], &endptr, 10);
+	if (endptr == argv[2] || *endptr != '\0')
+	{
+		logger(1, "Error: Invalid number provided for increment value");
+		return ;
+	}
+    status = kv_incr_by(store->table, argv[1], number);
+    log_message(1, status);
+}
+
+void    handle_decr_by(t_kv_store *store, int argc, char **argv)
+{
+    t_status_code	status;
+	int				number;
+    char			*endptr;
+
+    if (argc != 3)
+    {
+        logger(2, "Usage: decr <key> <increment>");
+        return ;
+    }
+    number = strtol(argv[2], &endptr, 10);
+	if (endptr == argv[2] || *endptr != '\0')
+	{
+		logger(1, "Error: Invalid number provided for increment value");
+		return ;
+	}
+    status = kv_decr_by(store->table, argv[1], number);
+    log_message(1, status);
+}
 
 int kv_string_ops_commands(void)
 {
@@ -47,7 +88,21 @@ int kv_string_ops_commands(void)
             .description = "",
             .handler = handle_decr,
             .flags = TABLE_REQUIRED
-        }
+        },
+        {
+            .name = "incrby",
+            .usage = "incrby <key> <increment>",
+            .description = "",
+            .handler = handle_incr_by,
+            .flags = TABLE_REQUIRED
+        },
+        {
+            .name = "decrby",
+            .usage = "decrby <key> <increment>",
+            .description = "",
+            .handler = handle_decr_by,
+            .flags = TABLE_REQUIRED
+        },
     };
 
     i = 0;
