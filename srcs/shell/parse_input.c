@@ -2,20 +2,6 @@
 #include "libs.h"
 #include "shell.h"
 
-// void    free_argv(char ***argv, int arg_count)
-// {
-//     int i;
-
-//     i = 0;
-//     while (i < arg_count)
-//     {
-//         free((*argv)[i]);
-//         i++;
-//     }
-//     free(*argv);
-//     *argv = NULL;
-// }
-
 int	resize_argv_if_needed(char ***argv, int *arg_capacity, int arg_count)
 {
     char	**temp;

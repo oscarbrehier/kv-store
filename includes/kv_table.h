@@ -43,8 +43,6 @@ t_status_code	kv_save_file(t_kv_table *table, const char *filename);
 t_status_code	kv_load_file(t_kv_table *table, const char *filename);
 void 			kv_free_table(t_kv_table *table);
 
-t_status_code	kv_incr(t_kv_table *table, char *key);
-t_status_code	kv_decr(t_kv_table *table, char *key);
 t_status_code	kv_incr_by(t_kv_table *table, char *key, int increment);
 t_status_code	kv_decr_by(t_kv_table *table, char *key, int increment);
 t_status_code	kv_append(t_kv_table *table, char *key, char *value);

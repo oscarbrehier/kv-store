@@ -192,7 +192,7 @@ t_status_code    kv_resize(t_kv_table *table)
     i = 0;
     while (i < old_capacity)
     {
-        node = table->buckets[i];
+        node = old_buckets[i];
         while (node)
         {
             result = kv_set(table, node->key, node->value, node->value_size, node->type);
@@ -203,6 +203,7 @@ t_status_code    kv_resize(t_kv_table *table)
             }
             tmp = node;
             node = node->next;
+			free(tmp->value);
             free(tmp);
         }
         i++;

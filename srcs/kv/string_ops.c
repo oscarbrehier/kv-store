@@ -1,54 +1,14 @@
 #include "kv_table.h"
 #include "libs.h"
 
-t_status_code	kv_incr(t_kv_table *table, char *key)
+int	default_incr_value(char **value)
 {
-	t_status_code	status;
-	char			*current_value;
-	char			*new_value;
-    char			*endptr;
-    long int		number;
-
-	status = kv_get(table, key, (void *)&current_value, STRING);
-	if (status != SUCCESS_CODE)
-		return (status);
-    number = strtol(current_value, &endptr, 10);
-	if (endptr == current_value || *endptr != '\0')
-		return (ERROR_STR_TO_INT_CODE);
-	number++;
-	new_value = ft_itoa(number);
-	if (!new_value)
-		return (ERROR_MEMORY_ALLOCATION_CODE);
-	status = kv_set(table, key, new_value, ft_strlen(new_value), STRING);
-	free(new_value);
-	if (status != SUCCESS_CODE && status != WARNING_KEY_EXISTS_CODE)
-		return (status);
-	return (SUCCESS_CODE);
-}
-
-t_status_code	kv_decr(t_kv_table *table, char *key)
-{
-	t_status_code	status;
-	char			*current_value;
-	char			*new_value;
-    char			*endptr;
-    long int		number;
-
-	status = kv_get(table, key, (void *)&current_value, STRING);
-	if (status != SUCCESS_CODE)
-		return (status);
-    number = strtol(current_value, &endptr, 10);
-	if (endptr == current_value || *endptr != '\0')
-		return (ERROR_STR_TO_INT_CODE);
-	number--;
-	new_value = ft_itoa(number);
-	if (!new_value)
-		return (ERROR_MEMORY_ALLOCATION_CODE);
-	status = kv_set(table, key, new_value, ft_strlen(new_value), STRING);
-	free(new_value);
-	if (status != SUCCESS_CODE && status != WARNING_KEY_EXISTS_CODE)
-		return (status);
-	return (SUCCESS_CODE);
+	*value = malloc(sizeof(char) * 2);
+	if (!*value)
+		return (1);
+	(*value)[0] = '0';
+	(*value)[1] = '\0';
+	return (0);
 }
 
 t_status_code	kv_incr_by(t_kv_table *table, char *key, int increment)
@@ -58,11 +18,18 @@ t_status_code	kv_incr_by(t_kv_table *table, char *key, int increment)
 	char			*new_value;
     char			*endptr;
     long int		number;
+	int				needs_free;
 
-	current_value = NULL;
 	status = kv_get(table, key, (void *)&current_value, STRING);
-	if (status != SUCCESS_CODE)
-		return (status);
+	needs_free = 0;
+	if (status == ERROR_KEY_NOT_FOUND_CODE)
+	{
+		if (default_incr_value(&current_value))
+			return (ERROR_MEMORY_ALLOCATION_CODE);
+		needs_free = 1;
+	}
+	else if (status != SUCCESS_CODE)
+		return (status);	
     number = strtol(current_value, &endptr, 10);
 	if (endptr == current_value || *endptr != '\0')
 		return (ERROR_STR_TO_INT_CODE);
@@ -72,6 +39,8 @@ t_status_code	kv_incr_by(t_kv_table *table, char *key, int increment)
 		return (ERROR_MEMORY_ALLOCATION_CODE);
 	status = kv_set(table, key, new_value, ft_strlen(new_value), STRING);
 	free(new_value);
+	if (needs_free)
+		free(current_value);
 	if (status != SUCCESS_CODE && status != WARNING_KEY_EXISTS_CODE)
 		return (status);
 	return (SUCCESS_CODE);
@@ -84,9 +53,17 @@ t_status_code	kv_decr_by(t_kv_table *table, char *key, int increment)
 	char			*new_value;
     char			*endptr;
     long int		number;
+	int				needs_free;
 
 	status = kv_get(table, key, (void *)&current_value, STRING);
-	if (status != SUCCESS_CODE)
+	needs_free = 0;
+	if (status == ERROR_KEY_NOT_FOUND_CODE)
+	{
+		if (default_incr_value(&current_value))
+			return (ERROR_MEMORY_ALLOCATION_CODE);
+		needs_free = 1;
+	}
+	else if (status != SUCCESS_CODE)
 		return (status);
     number = strtol(current_value, &endptr, 10);
 	if (endptr == current_value || *endptr != '\0')
@@ -97,6 +74,8 @@ t_status_code	kv_decr_by(t_kv_table *table, char *key, int increment)
 		return (ERROR_MEMORY_ALLOCATION_CODE);
 	status = kv_set(table, key, new_value, ft_strlen(new_value), STRING);
 	free(new_value);
+	if (needs_free)
+		free(current_value);
 	if (status != SUCCESS_CODE && status != WARNING_KEY_EXISTS_CODE)
 		return (status);
 	return (SUCCESS_CODE);

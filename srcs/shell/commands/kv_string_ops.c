@@ -11,7 +11,7 @@ void    handle_incr(t_kv_store *store, int argc, char **argv)
         logger(2, "Usage: incr <key>");
         return ;
     }
-    status = kv_incr(store->table, argv[1]);
+    status = kv_incr_by(store->table, argv[1], 1);
     log_message(1, status);
 }
 
@@ -24,7 +24,7 @@ void    handle_decr(t_kv_store *store, int argc, char **argv)
         logger(2, "Usage: decr <key>");
         return ;
     }
-    status = kv_decr(store->table, argv[1]);
+    status = kv_decr_by(store->table, argv[1], 1);
     log_message(1, status);
 }
 
