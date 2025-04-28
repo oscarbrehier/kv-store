@@ -37,10 +37,11 @@ t_status_code	kv_set(t_kv_table *table, const char *key, void *value, size_t val
 			// strncpy(current->value, value, sizeof(current->value) - 1);
 			// current->value[sizeof(current->value) - 1] = '\0';
 			free(current->value);
-			current->value = malloc(value_size);
+			current->value = malloc(sizeof(char) * (value_size + 1));
 			if (!current->value)
 				return (ERROR_MEMORY_REALLOCATION_CODE);
 			memcpy(current->value, value, value_size);
+			((char *)current->value)[value_size] = '\0';
 			current->value_size = value_size;
 			current->type = type;
 			return (WARNING_KEY_EXISTS_CODE);
@@ -58,7 +59,7 @@ t_status_code	kv_set(t_kv_table *table, const char *key, void *value, size_t val
 	// new_pair->value[sizeof(new_pair->value) - 1] = '\0';
 	strncpy(new_pair->key, key, sizeof(new_pair->key) - 1);
 	new_pair->key[sizeof(new_pair->key) - 1] = '\0';
-	new_pair->value = malloc(value_size + 1);
+	new_pair->value = malloc(sizeof(char) * (value_size + 1));
 	if (!new_pair->value)
 	{
 		free(new_pair);
