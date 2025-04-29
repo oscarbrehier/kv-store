@@ -83,6 +83,26 @@ void	handle_append(t_kv_store *store, int argc, char **argv)
 	log_message(1, status);
 }
 
+void	handle_strlen(t_kv_store *store, int argc, char **argv)
+{
+	t_status_code	status;
+	char			*value_len;
+
+	if (argc != 2)
+	{
+		logger(2, "Usage: strlen <key>");
+		return ;
+	}
+	status = kv_strlen(store->table, argv[1], &value_len);
+	if (status != SUCCESS_CODE)
+	{
+		log_message(1, status);
+		return ;
+	}
+	logger(2, "%s", value_len);
+	free(value_len);
+}
+
 int kv_string_ops_commands(void)
 {
     size_t      i;
@@ -121,6 +141,13 @@ int kv_string_ops_commands(void)
             .usage = "append <key> <value>",
             .description = "",
             .handler = handle_append,
+            .flags = TABLE_REQUIRED
+        },
+        {
+            .name = "strlen",
+            .usage = "strlen <key>",
+            .description = "",
+            .handler = handle_strlen,
             .flags = TABLE_REQUIRED
         },
     };

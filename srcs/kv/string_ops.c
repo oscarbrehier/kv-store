@@ -109,3 +109,19 @@ t_status_code	kv_append(t_kv_table *table, char *key, char *value)
 	free(new);
 	return (SUCCESS_CODE);
 }
+
+t_status_code	kv_strlen(t_kv_table *table, char *key, char **output)
+{
+	t_status_code	status;
+	char			*value;
+	int				value_len;
+
+	status = kv_get(table, key, (void *)&value, STRING);
+	if (status != SUCCESS_CODE)
+		return (status);
+	value_len = ft_strlen(value);
+	*output = ft_itoa(value_len);
+	if (*output == NULL)
+		return (ERROR_MEMORY_ALLOCATION_CODE);
+	return (SUCCESS_CODE);
+}

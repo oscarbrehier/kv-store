@@ -3,6 +3,7 @@
 #include "status_codes.h"
 #include "libs.h"
 #include "shell.h"
+#include "server.h"
 
 void kv_free_table(t_kv_table *table)
 {
@@ -40,16 +41,6 @@ int	main(void)
         log_message(1, ERROR_MEMORY_REALLOCATION_CODE);
         return (1);
     }
-
-    // kv_init_table(&table, 8);
-    // if (!table)
-    // {
-    //     logger(1, "Error: Failed to initialize table");
-    //     return (1);
-    // }
-    // store->table = table;
-    // strcpy(store->name, "test");
-    // kv_set(table, "hello", "world", 5, STRING);
 
     store->table = NULL;
     store->name[0] = '\0';

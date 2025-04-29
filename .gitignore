@@ -13,3 +13,6 @@ data
 
 # other
 /includes/hashtable.h
+
+server
+server.h

@@ -46,5 +46,6 @@ void 			kv_free_table(t_kv_table *table);
 t_status_code	kv_incr_by(t_kv_table *table, char *key, int increment);
 t_status_code	kv_decr_by(t_kv_table *table, char *key, int increment);
 t_status_code	kv_append(t_kv_table *table, char *key, char *value);
+t_status_code	kv_strlen(t_kv_table *table, char *key, char **output);
 
 #endif
