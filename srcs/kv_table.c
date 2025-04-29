@@ -211,3 +211,27 @@ t_status_code    kv_resize(t_kv_table *table)
     free(old_buckets);
     return (SUCCESS_CODE);
 }
+
+void kv_free_table(t_kv_table *table)
+{
+    int     i;
+    t_kv_pair   *current;
+    t_kv_pair   *next;
+    if (!table)
+        return;
+    i = 0;
+    while (i < table->capacity)
+    {
+        current = table->buckets[i];
+        while (current)
+        {
+            next = current->next;
+            free(current->value);
+            free(current);
+            current = next;
+        }
+        i++;
+    }
+    free(table->buckets);
+    free(table);
+}

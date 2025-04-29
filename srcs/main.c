@@ -3,31 +3,7 @@
 #include "status_codes.h"
 #include "libs.h"
 #include "shell.h"
-#include "server.h"
 
-void kv_free_table(t_kv_table *table)
-{
-    int     i;
-    t_kv_pair   *current;
-    t_kv_pair   *next;
-    if (!table)
-        return;
-    i = 0;
-    while (i < table->capacity)
-    {
-        current = table->buckets[i];
-        while (current)
-        {
-            next = current->next;
-            free(current->value);
-            free(current);
-            current = next;
-        }
-        i++;
-    }
-    free(table->buckets);
-    free(table);
-}
 
 int	main(void)
 {
