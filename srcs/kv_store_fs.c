@@ -23,6 +23,8 @@ t_status_code	kv_save_file(t_kv_table *table, const char *filename)
 	uint32_t val_len;
 	t_kv_pair *current;
 
+	pthread_mutex_lock(&table->mutex);
+
 	i = 0;
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd < 0)
@@ -36,24 +38,13 @@ t_status_code	kv_save_file(t_kv_table *table, const char *filename)
 		{
 			key_len = ft_strlen(current->key);
 			val_len = ft_strlen(current->value);
-			if (write(fd, &key_len, sizeof(uint32_t)) != sizeof(uint32_t))
+			if (write(fd, &key_len, sizeof(uint32_t)) != sizeof(uint32_t) ||
+				write(fd, current->key, key_len) != (ssize_t)key_len ||
+				write(fd, &val_len, sizeof(uint32_t)) != sizeof(uint32_t) ||
+				write(fd, current->value, val_len) != (ssize_t)val_len)
 			{
 				close(fd);
-				return (ERROR_FILE_WRITE_CODE);
-			}
-			if (write(fd, current->key, key_len) != (ssize_t)key_len)
-			{
-				close(fd);
-				return (ERROR_FILE_WRITE_CODE);
-			}
-			if (write(fd, &val_len, sizeof(uint32_t)) != sizeof(uint32_t))
-			{
-				close(fd);
-				return (ERROR_FILE_WRITE_CODE);
-			}
-			if (write(fd, current->value, val_len) != (ssize_t)val_len)
-			{
-				close(fd);
+				pthread_mutex_unlock(&table->mutex);
 				return (ERROR_FILE_WRITE_CODE);
 			}
 			current = current->next;
@@ -61,6 +52,7 @@ t_status_code	kv_save_file(t_kv_table *table, const char *filename)
 		i++;
 	}
 	close(fd);
+	pthread_mutex_unlock(&table->mutex);
 	return (SUCCESS_CODE);
 };
 
@@ -74,12 +66,18 @@ t_status_code	kv_load_file(t_kv_table *table, const char *filename)
 	char			header[4];
 	t_status_code	status;
 
+	pthread_mutex_lock(&table->mutex);
+
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
+	{
+		pthread_mutex_unlock(&table->mutex);
 		return (ERROR_FILE_READ_CODE);
+	}
 	if (read(fd, header, 4) != 4 || memcmp(header, FILE_HEADER, 4) != 0)
 	{
 		close (fd);
+		pthread_mutex_unlock(&table->mutex);
 		return (ERROR_FILE_HEADER_CODE);
 	}
 	while (read(fd, &key_len, sizeof(uint32_t)) == sizeof(uint32_t))
@@ -88,23 +86,27 @@ t_status_code	kv_load_file(t_kv_table *table, const char *filename)
 		if (!key)
 		{
 			close(fd);
+			pthread_mutex_unlock(&table->mutex);
 			return (ERROR_MEMORY_ALLOCATION_CODE);
 		}
 		if (read(fd, key, key_len) != (ssize_t)key_len)
 		{
 			close(fd);
+			pthread_mutex_unlock(&table->mutex);
 			return (ERROR_READ_KEY_CODE);
 		}
 		key[key_len] = '\0';
 		if (read(fd, &val_len, sizeof(uint32_t)) != sizeof(uint32_t))
 		{
 			close(fd);
+			pthread_mutex_unlock(&table->mutex);
 			return (ERROR_READ_VAL_LEN_CODE);
 		}
 		val = malloc(val_len + 1);
 		if (!val)
 		{
 			close(fd);
+			pthread_mutex_unlock(&table->mutex);
 			return (ERROR_MEMORY_ALLOCATION_CODE);
 		}
 		if (read(fd, val, val_len) != (ssize_t)val_len)
@@ -113,12 +115,17 @@ t_status_code	kv_load_file(t_kv_table *table, const char *filename)
 			return (ERROR_READ_VAL_CODE);
 		}
 		val[val_len] = '\0';
-		status = kv_set(table, key, val, ft_strlen(val), STRING);
+		status = _kv_set_internal(table, key, val, ft_strlen(val), STRING, 0);
 		if (status != SUCCESS_CODE)
+		{
+			close(fd);
+			pthread_mutex_unlock(&table->mutex);
 			return (status);
+		}
 		free(key);
 		free(val);
 	}
 	close(fd);
+	pthread_mutex_unlock(&table->mutex);
 	return (SUCCESS_CODE);
 }

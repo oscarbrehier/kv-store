@@ -12,5 +12,6 @@
 #include <stdint.h>
 #include <time.h>
 #include <dirent.h>
+#include <pthread.h>
 
 #endif

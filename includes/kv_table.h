@@ -28,14 +28,16 @@ typedef struct s_kv_pair
 
 typedef struct s_kv_table
 {
-	t_kv_pair	**buckets;
-	int			capacity;
-	int			size;
+	t_kv_pair		**buckets;
+	int				capacity;
+	int				size;
+	pthread_mutex_t	mutex;
 } t_kv_table;
 
 unsigned int	hash(const char *key, size_t capacity);
 t_status_code	kv_init_table(t_kv_table **table, int capacity);
 t_status_code	kv_set(t_kv_table *table, const char *key, void *value, size_t value_size, t_kv_type type);
+t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, size_t value_size, t_kv_type type, int should_lock);
 t_status_code	kv_get(t_kv_table *table, const char *key, void **output, t_kv_type type);
 t_status_code	kv_resize(t_kv_table *table);
 t_status_code	kv_delete(t_kv_table *table, const char *key);
