@@ -38,6 +38,9 @@ clean:
 fclean:	clean
 	rm -f ${EXEC}
 
+lclean:
+	rm -rf ${LIBNAME}
+
 debug: fclean ${EXEC} run
 
 run:

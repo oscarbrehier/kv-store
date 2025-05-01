@@ -28,10 +28,10 @@ typedef struct s_kv_pair
 
 typedef struct s_kv_table
 {
-	t_kv_pair		**buckets;
-	int				capacity;
-	int				size;
-	pthread_mutex_t	mutex;
+	t_kv_pair			**buckets;
+	int					capacity;
+	int					size;
+	pthread_rwlock_t	rwlock;
 } t_kv_table;
 
 unsigned int	hash(const char *key, size_t capacity);

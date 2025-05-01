@@ -4,12 +4,9 @@
 #include "libs.h"
 #include "shell.h"
 
-
 int	main(void)
 {
     t_kv_store      *store;
-    // t_kv_table      *table;
-    // t_status_code   status;
 
     store = (t_kv_store *)malloc(sizeof(t_kv_store));
     if (!store)

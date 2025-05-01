@@ -19,6 +19,7 @@ t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, 
 {
 	unsigned int	index;
 	t_kv_pair		*new_pair;
+	void			*update_value;
 	t_kv_pair		*current;
 	t_status_code	status;
 
@@ -28,25 +29,26 @@ t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, 
 		if (status != SUCCESS_CODE)
 			return (status);
 	}
-	if (should_lock) pthread_mutex_lock(&table->mutex);
+	if (should_lock) pthread_rwlock_wrlock(&table->rwlock);
 	index = hash(key, table->capacity);
 	current = table->buckets[index];
 	while (current != NULL)
 	{
 		if (strcmp(current->key, key) == 0)
 		{
-			free(current->value);
-			current->value = malloc(sizeof(char) * (value_size + 1));
-			if (!current->value)
+			update_value = malloc(sizeof(char) * (value_size + 1));
+			if (!update_value)
 			{
-				if (should_lock) pthread_mutex_unlock(&table->mutex);
+				if (should_lock) pthread_rwlock_unlock(&table->rwlock);
 				return (ERROR_MEMORY_REALLOCATION_CODE);
 			}
-			memcpy(current->value, value, value_size);
-			((char *)current->value)[value_size] = '\0';
+			memcpy(update_value, value, value_size);
+			((char *)update_value)[value_size] = '\0';
+			free(current->value);
+			current->value = update_value;
 			current->value_size = value_size;
 			current->type = type;
-			if (should_lock) pthread_mutex_unlock(&table->mutex);
+			if (should_lock) pthread_rwlock_unlock(&table->rwlock);
 			return (WARNING_KEY_EXISTS_CODE);
 		}
 		current = current->next;
@@ -54,7 +56,7 @@ t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, 
 	new_pair = malloc(sizeof(t_kv_pair));
 	if (!new_pair)
 	{
-		if (should_lock) pthread_mutex_unlock(&table->mutex);
+		if (should_lock) pthread_rwlock_unlock(&table->rwlock);
 		return (ERROR_MEMORY_ALLOCATION_CODE);
 	}
 	strncpy(new_pair->key, key, sizeof(new_pair->key) - 1);
@@ -63,7 +65,7 @@ t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, 
 	if (!new_pair->value)
 	{
 		free(new_pair);
-		if (should_lock) pthread_mutex_unlock(&table->mutex);
+		if (should_lock) pthread_rwlock_unlock(&table->rwlock);
 		return (ERROR_MEMORY_ALLOCATION_CODE);
 	}
 	memcpy(new_pair->value, value, value_size);
@@ -73,7 +75,7 @@ t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, 
 	new_pair->next = table->buckets[index];
 	table->buckets[index] = new_pair;
 	table->size++;
-	if (should_lock) pthread_mutex_unlock(&table->mutex);
+	if (should_lock) pthread_rwlock_unlock(&table->rwlock);
 	return (SUCCESS_CODE);
 }
 
@@ -84,16 +86,15 @@ t_status_code	kv_set(t_kv_table *table, const char *key, void *value, size_t val
 
 t_status_code	kv_get(t_kv_table *table, const char *key, void **output, t_kv_type type)
 {
-	unsigned int index;
-	t_kv_pair *current;
+	unsigned int 	index;
+	t_kv_pair 		*current;
+	t_status_code	status;
 
-	pthread_mutex_lock(&table->mutex);
+	pthread_rwlock_rdlock(&table->rwlock);
 	index = hash(key, table->capacity);
+	status = ERROR_KEY_NOT_FOUND_CODE;
 	if (table->buckets[index] == NULL)
-	{
-		pthread_mutex_unlock(&table->mutex);
-		return (ERROR_KEY_NOT_FOUND_CODE);
-	}
+		goto cleanup;
 	current = table->buckets[index];
 	while (current != NULL)
 	{
@@ -102,33 +103,32 @@ t_status_code	kv_get(t_kv_table *table, const char *key, void **output, t_kv_typ
 			if (current->type == type)
 			{
 				*output = current->value;
-				pthread_mutex_unlock(&table->mutex);
-				return (SUCCESS_CODE);
+				status = SUCCESS_CODE;
 			}
 			else
-			{
-				pthread_mutex_unlock(&table->mutex);
-				return (ERROR_VALUE_TYPE_MISMATCH_CODE);
-			}
+				status = ERROR_VALUE_TYPE_MISMATCH_CODE;
+			break ; 
 		}
 		current = current->next;
 	}
-	pthread_mutex_unlock(&table->mutex);
-	return (ERROR_KEY_NOT_FOUND_CODE);
+cleanup:
+	pthread_rwlock_unlock(&table->rwlock);
+	return (status);
 }
 
 t_status_code	kv_delete(t_kv_table *table, const char *key)
 {
-	unsigned int index;
-	t_kv_pair *current;
-	t_kv_pair *previous;
+	unsigned int 	index;
+	t_kv_pair 		*current;
+	t_kv_pair 		*previous;
+	t_status_code	status;
 
-	pthread_mutex_lock(&table->mutex);
+	pthread_rwlock_wrlock(&table->rwlock);
 	index = hash(key, table->capacity);
+	status = ERROR_KEY_NOT_FOUND_CODE;
 	if (table->buckets[index] == NULL)
 	{
-		pthread_mutex_unlock(&table->mutex);
-		return (ERROR_KEY_NOT_FOUND_CODE);
+		goto cleanup;
 	}
 	current = table->buckets[index];
 	previous = NULL;
@@ -142,14 +142,15 @@ t_status_code	kv_delete(t_kv_table *table, const char *key)
 				previous->next = current->next;
 			free(current->value);
 			free(current);
-			pthread_mutex_unlock(&table->mutex);
-			return (SUCCESS_CODE);
+			status = SUCCESS_CODE;
+			break ;
 		}
 		previous = current;
 		current = current->next;
 	}
-	pthread_mutex_unlock(&table->mutex);
-	return (ERROR_KEY_NOT_FOUND_CODE);
+cleanup:
+	pthread_rwlock_unlock(&table->rwlock);
+	return (status);
 };
 
 t_status_code	kv_init_table(t_kv_table **table, int capacity)
@@ -160,7 +161,7 @@ t_status_code	kv_init_table(t_kv_table **table, int capacity)
     (*table)->capacity = capacity;
     (*table)->size = 0;
     (*table)->buckets = calloc(capacity, sizeof(t_kv_pair *));
-	if (pthread_mutex_init(&(*table)->mutex, NULL) != 0)
+	if (pthread_rwlock_init(&(*table)->rwlock, NULL) != 0)
 	{
 		free((*table)->buckets);
 		free(*table);
@@ -208,7 +209,7 @@ t_status_code    kv_resize(t_kv_table *table)
     t_kv_pair       *tmp;
     t_status_code    result;
 
-	pthread_mutex_lock(&table->mutex);
+	pthread_rwlock_wrlock(&table->rwlock);
     old_capacity = table->capacity;
     old_buckets = table->buckets;
     table->capacity *= 2;
@@ -218,7 +219,7 @@ t_status_code    kv_resize(t_kv_table *table)
     {
         table->buckets = old_buckets;
         table->capacity = old_capacity;
-		pthread_mutex_unlock(&table->mutex);
+		pthread_rwlock_unlock(&table->rwlock);
         return (ERROR_MEMORY_ALLOCATION_CODE);
     }
     i = 0;
@@ -231,7 +232,7 @@ t_status_code    kv_resize(t_kv_table *table)
             if (result != SUCCESS_CODE)
             {
                 revert_resize(table, old_buckets, old_capacity);
-				pthread_mutex_unlock(&table->mutex);
+				pthread_rwlock_unlock(&table->rwlock);
                 return (result);
             }
             tmp = node;
@@ -242,7 +243,7 @@ t_status_code    kv_resize(t_kv_table *table)
         i++;
     }
     free(old_buckets);
-	pthread_mutex_unlock(&table->mutex);
+	pthread_rwlock_unlock(&table->rwlock);
     return (SUCCESS_CODE);
 }
 
@@ -251,8 +252,9 @@ void kv_free_table(t_kv_table *table)
     int     i;
     t_kv_pair   *current;
     t_kv_pair   *next;
-    if (!table)
-        return;
+
+    if (!table) return;
+	pthread_rwlock_wrlock(&table->rwlock);
     i = 0;
     while (i < table->capacity)
     {
@@ -266,7 +268,8 @@ void kv_free_table(t_kv_table *table)
         }
         i++;
     }
-	pthread_mutex_destroy(&table->mutex);
+	pthread_rwlock_unlock(&table->rwlock);
+	pthread_rwlock_destroy(&table->rwlock);
     free(table->buckets);
     free(table);
 }
