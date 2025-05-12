@@ -209,14 +209,14 @@ void	read_file_into_buffer(const char *filename, char **content)
 	fd = open(filename, O_RDONLY);
 	if (fd < 0)
 	{
-		log_message(1, ERROR_FILE_OPEN_CODE);
+		status_log(1, ERROR_FILE_OPEN);
 		return ;
 	}
 	buffer_capacity = 1024;
 	*content = (char *)malloc(buffer_capacity);
 	if (*content == NULL)
 	{
-		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
+		status_log(1, ERROR_MEMORY_ALLOCATION);
 		close(fd);
 		return ;
 	}
@@ -229,7 +229,7 @@ void	read_file_into_buffer(const char *filename, char **content)
 			temp = (char *)realloc(*content, buffer_capacity);
 			if (!temp)
 			{
-				logger(1, "Error: Failed to reallocate memory.");
+				status_log(1, ERROR_MEMORY_REALLOCATION);
 				free(*content);
 				close(fd);
 				return ;
@@ -241,7 +241,7 @@ void	read_file_into_buffer(const char *filename, char **content)
 	}
 	if (bytes_read < 0)
 	{
-		log_message(1, ERROR_FILE_READ_CODE);
+		status_log(1, ERROR_FILE_READ);
 		free(*content);
 		close(fd);
 		return ;
@@ -257,7 +257,7 @@ void	read_file_into_buffer(const char *filename, char **content)
 	// (*content)[buffer_size] = '\n';
 	// (*content)[buffer_size + 1] = '\0';
 	if (close(fd) < 0)
-		log_message(1, ERROR_FILE_CLOSE_CODE);
+		status_log(1, ERROR_FILE_CLOSE);
 }
 
 void formatTimestamp(time_t timestamp, char *buf, size_t buf_size)
@@ -268,19 +268,22 @@ void formatTimestamp(time_t timestamp, char *buf, size_t buf_size)
 	strftime(buf, buf_size, "%a %Y-%m-%d %H:%M:%S %Z", &ts);
 }
 
-t_status_code	construct_table_path(char *filename, char *path, const char **output)
+t_status	construct_table_path(char *filename, char *path, const char **output)
 {
-	char	ext[] = ".kvdb";
-	char	*fullpath;
+	char		ext[] = ".kvdb";
+	char		*fullpath;
+	t_status	status;
 
 	fullpath = malloc(sizeof(char) * (ft_strlen(path) + ft_strlen(filename) + ft_strlen(ext) + 1));
 	if (!fullpath)
 	{
-		return (ERROR_MEMORY_ALLOCATION_CODE);
+		status = status_create(-1, ERROR_MEMORY_ALLOCATION, LOG_ERROR);
+		return (status);
 	}
 	sprintf(fullpath, "%s%s%s", path, filename, ext);
 	*output = fullpath;
-	return (SUCCESS_CODE);
+	status = status_create(0, SUCCESS, LOG_INFO);
+	return (status);
 } 
 
 int	intlen(long int nbr)

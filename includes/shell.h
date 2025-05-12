@@ -59,7 +59,7 @@ void    parse_input(char *input, int *argc, char ***argv);
 void	free_argv(char **argv);
 
 int				init_command_table(void);
-t_status_code	register_command(t_command *cmd);
+t_status        register_command(t_command *cmd);
 t_command		*find_command(const char *name);
 void			cleanup_command_sys(void);
 

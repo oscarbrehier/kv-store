@@ -11,7 +11,7 @@ int	main(void)
     store = (t_kv_store *)malloc(sizeof(t_kv_store));
     if (!store)
     {
-        log_message(1, ERROR_MEMORY_REALLOCATION_CODE);
+        logger(1, status_messages[ERROR_MEMORY_REALLOCATION]);
         return (1);
     }
 

@@ -21,27 +21,40 @@ void cleanup_command_sys(void)
     }
 }
 
-t_status_code	register_command(t_command *cmd)
+t_status	register_command(t_command *cmd)
 {
+	t_status	status;
+
     if (!command_table)
-        return (ERROR_COMMAND_TABLE_MISSING_CODE);
+	{
+		status = status_create(-1, ERROR_COMMAND_NAME_MISSING, LOG_ERROR);
+		return (status);
+	}
 	else if (!cmd)
-		return (ERROR_COMMAND_STRUCT_NOT_FOUND_CODE);
+	{
+		status = status_create(-1, ERROR_COMMAND_STRUCT_NOT_FOUND, LOG_ERROR);
+		return (status);
+	}
 	else if (!cmd->name)
-		return (ERROR_COMMAND_NAME_MISSING_CODE);
+	{
+		status = status_create(-1, ERROR_COMMAND_NAME_MISSING, LOG_ERROR);
+		return (status);
+	}
 	return kv_set(command_table, cmd->name, cmd, sizeof(t_command), COMMAND);
 }
 
 t_command *find_command(const char *name)
 {
-	void	*value;
+	void		*value;
+	t_status	status;
 
     if (!command_table || !name)
     {
 		return (NULL);
 	}
 	value = NULL;
-	if (kv_get(command_table, name, &value, COMMAND) != SUCCESS_CODE)
+	status = kv_get(command_table, name, &value, COMMAND);
+	if (status.code != SUCCESS)
 		return (NULL);
     return (t_command *)value;
 }

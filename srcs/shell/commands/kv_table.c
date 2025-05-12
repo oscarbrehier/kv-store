@@ -4,7 +4,7 @@
 
 void	handle_set(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	status;
+	t_status	status;
 
 	if (argc != 3)
 	{
@@ -17,12 +17,12 @@ void	handle_set(t_kv_store *store, int argc, char **argv)
 		return ;
 	}
 	status = kv_set(store->table, argv[1], (void *)argv[2], ft_strlen(argv[2]), STRING);
-	log_message(1, status);
+	status_log(1, status.code);
 }
 
 void	handle_get(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	status;
+	t_status	status;
 	const char		*value;
 
 	if (argc != 2)
@@ -31,15 +31,15 @@ void	handle_get(t_kv_store *store, int argc, char **argv)
 		return;
 	}
 	status = kv_get(store->table, argv[1], (void *)&value, STRING);
-	if (status == SUCCESS_CODE && value)
+	if (status.code == SUCCESS && value)
 		logger(2, "%s", (char *)value);
 	else
-		log_message(1, status);
+		status_log(1, status.code);
 }
 
 void	handle_delete(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	status;
+	t_status	status;
 
 	if (argc != 2)
 	{
@@ -47,12 +47,12 @@ void	handle_delete(t_kv_store *store, int argc, char **argv)
 		return;
 	}
 	status = kv_delete(store->table, argv[1]);
-	log_message(1, status);
+	status_log(1, status.code);
 }
 
 void 	handle_save(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	status;
+	t_status	status;
 
 	if (argc != 2)
 	{
@@ -60,25 +60,25 @@ void 	handle_save(t_kv_store *store, int argc, char **argv)
 		return ;
 	}
 	status = kv_save_file(store->table, argv[1]);
-	log_message(1, status);
+	status_log(1, status.code);
 }
 
 void    handle_exit(t_kv_store *store, int argc, char **argv)
 {
     (void)argc;
     (void)argv;
-    t_status_code   status;
+    t_status   status;
     status = kv_save_file(store->table, strcat(store->name, ".kvdb"));
     kv_free_table(store->table);
     store->table = NULL;
     store->name[0] = '\0';
-    log_message(1, status);
+    status_log(1, status.code);
 }
 
 int	kv_table_commands(void)
 {
 	size_t				i;
-	t_status_code		status;
+	t_status		status;
 	static t_command 	commands[] = {
 		{
 			.name = "set",
@@ -128,7 +128,7 @@ int	kv_table_commands(void)
 	while (i < sizeof(commands) / sizeof(commands[i]))
 	{
 		status = register_command(&commands[i]);
-		if (status != SUCCESS_CODE)
+		if (status.code != SUCCESS)
 			return (1);
 		i++;
 	}

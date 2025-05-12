@@ -35,7 +35,7 @@ void    handle_help(t_kv_store *store, int argc, char **argv)
 int	utility_commands(void)
 {
     size_t				i;
-	t_status_code		status;
+	t_status			status;
     static t_command	commands[] = {
         {
             .name = "clear",
@@ -57,7 +57,7 @@ int	utility_commands(void)
     while (i < sizeof(commands) / sizeof(commands[0]))
     {
         status = register_command(&commands[i]);
-		if (status != SUCCESS_CODE)
+		if (status.code != SUCCESS)
 			return (1);
         i++;
     }

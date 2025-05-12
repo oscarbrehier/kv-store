@@ -1,55 +1,94 @@
 #ifndef STATUS_CODES_H
 # define STATUS_CODES_H
 
-#define STATUS_LIST \
-	X(UNKNOWN, -1, "unknown error", 4) \
-    X(SUCCESS, 0, "OK.", 2) \
-    X(WARNING_KEY_EXISTS, 1, "Warning: Key already exists. Value will be updated.", 3) \
-    X(ERROR_MEMORY_ALLOCATION, 2, "Error: Failed to allocate memory for key-value pair.", 4) \
-    X(ERROR_MEMORY_REALLOCATION, 3, "Error: Failed to Reallocate memory.", 4) \
-    X(ERROR_INVALID_INPUT, 4, "Error: Invalid key or value format.", 4) \
-    X(ERROR_KEY_NOT_FOUND, 5, "Error: Key not found.", 4) \
-    X(ERROR_FILE_OPEN, 6, "Error: Unable to open file for saving data.", 4) \
-    X(ERROR_FILE_WRITE, 7, "Error: Failed to write data to file.", 4) \
-    X(ERROR_FILE_READ, 8, "Error: Unable to open file for loading data.", 4) \
-    X(ERROR_FILE_FORMAT, 9, "Error: Invalid file format. Unable to parse key-value pairs.", 4) \
-    X(ERROR_FILE_CLOSE, 10, "Error: Failed to close file.", 4) \
-    X(ERROR_INVALID_COMMAND, 11, "Error: Invalid command. Type 'help' for a list of available commands.", 4) \
-    X(ERROR_FILE_SAVE, 12, "Error: Failed to save data to file before exit.", 4) \
-    X(ERROR_UNEXPECTED_EXIT, 13, "Error: An unexpected error occurred during exit. Data may not have been saved.", 5) \
-    X(ERROR_HELP_SYNTAX, 14, "Error: Incorrect usage of the command. Use 'help' to see the correct syntax.", 4) \
-    X(ERROR_FILE_HEADER, 15, "Error: Invalid file header.", 4) \
-    X(ERROR_READ_KEY, 16, "Error: Failed to read key from file.", 4) \
-    X(ERROR_READ_VAL, 17, "Error: Failed to read value from file.", 4) \
-    X(ERROR_READ_VAL_LEN, 18, "Error: Failed to read value length from file.", 4) \
-    X(ERROR_INIT_TABLE, 19, "Error: Failed to initialize table.", 4) \
-    X(ERROR_TABLE_MISSING, 20, "Error: The specified table could not be found.", 4) \
-    X(ERROR_TABLE_DROP, 21, "Error: Failed to drop the specified table.", 4) \
-    X(ERROR_TABLE_RENAME, 22, "Error: Failed to rename the specified table.", 4) \
-    X(ERROR_UNEXPECTED, 22, "Error: An unexpected error occurred.", 5) \
-    X(ERROR_COMMAND_TABLE_MISSING, 23, "Error: Command table has not been initialized.", 4) \
-    X(ERROR_COMMAND_STRUCT_NOT_FOUND, 24, "Error: Command not found.", 4) \
-    X(ERROR_COMMAND_NAME_MISSING, 25, "Error: Command name is missing.", 4) \
-    X(ERROR_VALUE_TYPE_MISMATCH, 26, "Error: Value type mismatch.", 4) \
-    X(ERROR_STR_TO_INT, 27, "Error: Failed to convert string to integer.", 4) \
-    X(ERROR_MUTEX_INIT, 27, "Error: Failed to table mutex.", 4)
+// == Log Levels == 
+// DEBUG (1)
+// INFO (2)
+// WARNING (3) 
+// ERROR (4)
+// FATAL (5)
     
-#define X(name, code, message, log_level) name##_CODE = code,
+#define LOG_DEBUG 1
+#define LOG_INFO 2
+#define LOG_WARNING 3
+#define LOG_ERROR 4
+#define LOG_FATAL 5
 
-typedef enum {
-    STATUS_LIST
+// #define SUCCESS "OK"
+// #define ERROR_UNKNOWN "unknown"
+
+// #define ERROR_MEMORY_ALLOCATION "failed to allocate memory"
+// #define ERROR_MEMORY_REALLOCATION "failed to reallocate memory"
+// #define ERROR_MUTEX_INIT "failed to initialize table mutex"
+
+// #define ERROR_STR_INT "failed to convert string to integer"
+
+// #define ERROR_FILE_OPEN "unable to open file or directory"
+// #define ERROR_FILE_READ "unable to read file"
+// #define ERROR_FILE_CLOSE "unable to close file"
+// #define ERROR_FILE_WRITE "unable to write to file"
+
+// #define ERROR_COMMAND_TABLE_MISSING "command table has not been initialized"
+// #define ERROR_COMMAND_STRUCT_NOT_FOUND "command not found"
+// #define ERROR_COMMAND_NAME_MISSING "command name is missing"
+
+// #define ERROR_INIT_TABLE "failed to initialize table"
+// #define ERROR_TABLE_MISSING "the specified table could not be found"
+// #define ERROR_TABLE_DROP "failed to drop the specified table"
+// #define ERROR_TABLE_RENAME "failed to rename table"
+
+// #define WARNING_KEY_EXISTS "key already exists, value will be updated"
+// #define ERROR_KEY_NOT_FOUND "key not found"
+// #define ERROR_VALUE_TYPE_MISMATCH "value type mismatch"
+// #define ERROR_READ_KEY "failed to read key from file"
+// #define ERROR_READ_VAL "failed to read value from file"
+// #define ERROR_READ_VAL_LEN "failed to read value length from file"
+
+typedef enum e_status_code {
+    SUCCESS,
+    STATUS_UNKNOWN,
+
+    ERROR_MEMORY_ALLOCATION,
+    ERROR_MEMORY_REALLOCATION,
+    ERROR_MUTEX_INIT,
+
+    ERROR_STR_INT,
+
+    ERROR_FILE_OPEN,
+    ERROR_FILE_READ,
+    ERROR_FILE_CLOSE,
+    ERROR_FILE_WRITE,
+    ERROR_FILE_HEADER,
+
+    ERROR_COMMAND_TABLE_MISSING,
+    ERROR_COMMAND_STRUCT_NOT_FOUND,
+    ERROR_COMMAND_NAME_MISSING,
+
+    ERROR_INIT_TABLE,
+    ERROR_TABLE_MISSING,
+    ERROR_TABLE_DROP,
+    ERROR_TABLE_RENAME,
+
+    WARNING_KEY_EXISTS,
+    ERROR_KEY_NOT_FOUND,
+    ERROR_VALUE_TYPE_MISMATCH,
+    ERROR_READ_KEY,
+    ERROR_READ_VAL,
+    ERROR_READ_VAL_LEN,
+
+    STATUS_CODE_COUNT  // always keep this last for bounds checking
 } t_status_code;
 
-#undef X
+extern char *status_messages[STATUS_CODE_COUNT];
 
 typedef struct s_status
 {
-    t_status_code	code;
-    const char		*message;
+    int				exit;
 	int				log_level;
+    t_status_code   code;
 } t_status;
 
-t_status	get_status(t_status_code code);
-void        log_message(int fd, t_status_code code, ...);
+t_status	status_create(int exit_code, t_status_code code, int log_level);
+void	    status_log(int fd, t_status_code code, ...);
 
 #endif

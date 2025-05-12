@@ -8,29 +8,36 @@ int	write_header(int fd)
 	header_len = ft_strlen(FILE_HEADER);
 	if (write(fd, FILE_HEADER, header_len) != (ssize_t)header_len)
 	{
-		log_message(1, ERROR_FILE_WRITE_CODE);
+		status_log(1, ERROR_FILE_CLOSE);
 		close(fd);
 		return 0;
 	}
 	return (1);
 }
 
-t_status_code	kv_save_file(t_kv_table *table, const char *filename)
+t_status	kv_save_file(t_kv_table *table, const char *filename)
 {
-	int i;
-	int fd;
-	uint32_t key_len;
-	uint32_t val_len;
-	t_kv_pair *current;
+	int 		i;
+	int 		fd;
+	uint32_t 	key_len;
+	uint32_t 	val_len;
+	t_kv_pair 	*current;
+	t_status	status;
 
 	pthread_rwlock_rdlock(&table->rwlock);
 
 	i = 0;
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd < 0)
-		return (ERROR_FILE_OPEN_CODE);
+	{
+		status = status_create(-1, ERROR_FILE_OPEN, LOG_ERROR);
+		return (status);
+	}
 	if (!(write_header(fd)))
-		return (ERROR_FILE_WRITE_CODE);
+	{
+		status = status_create(-1, ERROR_FILE_WRITE, LOG_ERROR);
+		return (status);
+	}
 	while (i < table->capacity)
 	{
 		current = table->buckets[i];
@@ -45,7 +52,8 @@ t_status_code	kv_save_file(t_kv_table *table, const char *filename)
 			{
 				close(fd);
 				pthread_rwlock_unlock(&table->rwlock);
-				return (ERROR_FILE_WRITE_CODE);
+				status = status_create(-1, ERROR_FILE_WRITE, LOG_ERROR);
+				return (status);
 			}
 			current = current->next;
 		}
@@ -53,10 +61,11 @@ t_status_code	kv_save_file(t_kv_table *table, const char *filename)
 	}
 	close(fd);
 	pthread_rwlock_unlock(&table->rwlock);
-	return (SUCCESS_CODE);
+	status = status_create(0, SUCCESS, LOG_INFO);
+	return (status);
 };
 
-t_status_code	kv_load_file(t_kv_table *table, const char *filename)
+t_status	kv_load_file(t_kv_table *table, const char *filename)
 {
 	int				fd;
 	uint32_t		key_len;
@@ -64,7 +73,7 @@ t_status_code	kv_load_file(t_kv_table *table, const char *filename)
 	char			*key;
 	char			*val;
 	char			header[4];
-	t_status_code	status;
+	t_status		status;
 
 	pthread_rwlock_wrlock(&table->rwlock);
 
@@ -72,13 +81,15 @@ t_status_code	kv_load_file(t_kv_table *table, const char *filename)
 	if (fd < 0)
 	{
 		pthread_rwlock_unlock(&table->rwlock);
-		return (ERROR_FILE_READ_CODE);
+		status = status_create(-1, ERROR_FILE_OPEN, LOG_ERROR);
+		return (status);
 	}
 	if (read(fd, header, 4) != 4 || memcmp(header, FILE_HEADER, 4) != 0)
 	{
 		close (fd);
 		pthread_rwlock_unlock(&table->rwlock);
-		return (ERROR_FILE_HEADER_CODE);
+		status = status_create(-1, ERROR_FILE_HEADER, LOG_ERROR);
+		return (status);
 	}
 	while (read(fd, &key_len, sizeof(uint32_t)) == sizeof(uint32_t))
 	{
@@ -87,36 +98,41 @@ t_status_code	kv_load_file(t_kv_table *table, const char *filename)
 		{
 			close(fd);
 			pthread_rwlock_unlock(&table->rwlock);
-			return (ERROR_MEMORY_ALLOCATION_CODE);
+			status = status_create(-1, ERROR_MEMORY_ALLOCATION, LOG_ERROR);
+			return (status);
 		}
 		if (read(fd, key, key_len) != (ssize_t)key_len)
 		{
 			close(fd);
 			pthread_rwlock_unlock(&table->rwlock);
-			return (ERROR_READ_KEY_CODE);
+			status = status_create(-1, ERROR_READ_KEY, LOG_ERROR);
+			return (status);
 		}
 		key[key_len] = '\0';
 		if (read(fd, &val_len, sizeof(uint32_t)) != sizeof(uint32_t))
 		{
 			close(fd);
 			pthread_rwlock_unlock(&table->rwlock);
-			return (ERROR_READ_VAL_LEN_CODE);
+			status = status_create(-1, ERROR_READ_VAL_LEN, LOG_ERROR);
+			return (status);
 		}
 		val = malloc(val_len + 1);
 		if (!val)
 		{
 			close(fd);
 			pthread_rwlock_unlock(&table->rwlock);
-			return (ERROR_MEMORY_ALLOCATION_CODE);
+			status = status_create(-1, ERROR_MEMORY_ALLOCATION, LOG_ERROR);
+			return (status);
 		}
 		if (read(fd, val, val_len) != (ssize_t)val_len)
 		{
 			close(fd);
-			return (ERROR_READ_VAL_CODE);
+			status = status_create(-1, ERROR_READ_VAL, LOG_ERROR);
+			return (status);
 		}
 		val[val_len] = '\0';
 		status = _kv_set_internal(table, key, val, ft_strlen(val), STRING, 0);
-		if (status != SUCCESS_CODE)
+		if (status.code != SUCCESS)
 		{
 			close(fd);
 			pthread_rwlock_unlock(&table->rwlock);
@@ -127,5 +143,6 @@ t_status_code	kv_load_file(t_kv_table *table, const char *filename)
 	}
 	close(fd);
 	pthread_rwlock_unlock(&table->rwlock);
-	return (SUCCESS_CODE);
+	status = status_create(0, SUCCESS, LOG_INFO);
+	return (status);
 }

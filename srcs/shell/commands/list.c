@@ -40,7 +40,7 @@ char	***realloc_data(char ***data, int size, int i)
 	temp = realloc(data, sizeof(char **) * size);
 	if (!temp)
 	{
-		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
+		status_log(1, ERROR_MEMORY_ALLOCATION);
 		cleanup_data_table(data, i);
 		return (NULL);
 	}
@@ -65,7 +65,7 @@ static char	***get_data(int *rows)
 	data = malloc(sizeof(char **) * size);
 	if (!data)
 	{
-		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
+		status_log(1, ERROR_MEMORY_ALLOCATION);
 		return (NULL);
 	}
 	i = 0;
@@ -87,7 +87,7 @@ static char	***get_data(int *rows)
 			data[i] = malloc(sizeof(char *) * 3);
 			if (!data[i])
 			{
-				log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
+				status_log(1, ERROR_MEMORY_ALLOCATION);
 				cleanup_data_table(data, i);
 				return (NULL);
 			}

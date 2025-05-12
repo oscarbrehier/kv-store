@@ -8,13 +8,13 @@ static int	populate_row_data(char **row_data, t_kv_pair *pair)
 	row_data[0] = strdup(pair->key);
 	if (!row_data[0])
 	{
-		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
+		status_log(1, ERROR_MEMORY_ALLOCATION);
 		return (-1);
 	}
 	row_data[1] = malloc(sizeof(char) * (pair->value_size + 1));
 	if (!row_data[1])
 	{
-		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
+		status_log(1, ERROR_MEMORY_ALLOCATION);
 		free(row_data[0]);
 		return (-1);
 	}
@@ -36,7 +36,7 @@ static char	***collect_table_data(t_kv_table *table, int *row_count)
 	data = malloc(sizeof(char **) * (table->size + 1));
 	if (!data)
 	{
-		log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
+		status_log(1, ERROR_MEMORY_ALLOCATION);
 		return (NULL);
 	}
 	while (i < table->capacity)
@@ -47,7 +47,7 @@ static char	***collect_table_data(t_kv_table *table, int *row_count)
 			data[row] = malloc(sizeof(char *) * 3);
 			if (!data[row])
 			{
-				log_message(1, ERROR_MEMORY_ALLOCATION_CODE);
+				status_log(1, ERROR_MEMORY_ALLOCATION);
                 cleanup_data_table(data, row);
                 return NULL;
 			}

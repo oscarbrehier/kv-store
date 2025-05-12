@@ -2,18 +2,18 @@
 #include "kv_table.h"
 #include "libs.h"
 
-t_status_code   tb_create(char *filename)
+t_status   tb_create(char *filename)
 {
-    t_kv_table      *table;
-    const char      *filepath;
-    t_status_code   status;
+    t_kv_table		*table;
+    const char		*filepath;
+    t_status		status;
 
     table = NULL;
     filepath = NULL;
     RETURN_ON_ERROR(kv_init_table(&table, 8));
     RETURN_ON_ERROR(construct_table_path(filename, DIR_DATA, &filepath));
     RETURN_ON_ERROR(kv_save_file(table, filepath));
-    status = SUCCESS_CODE;
+    status = status_create(0, SUCCESS, LOG_INFO);
 cleanup:
     if (filepath)
         free((void *)filepath);
@@ -22,36 +22,35 @@ cleanup:
     return (status);    
 }
 
-t_status_code   tb_drop(char *filename)
+t_status   tb_drop(char *filename)
 {
-    const char      *filepath;
-    t_status_code   status;
+    const char		*filepath;
+    t_status		status;
 
     filepath = NULL;
     RETURN_ON_ERROR(construct_table_path(filename, DIR_DATA, &filepath));
     if (access(filepath, F_OK) != 0)
     {
-        status = ERROR_TABLE_MISSING_CODE;
+		status = status_create(-1, ERROR_TABLE_MISSING, LOG_ERROR);
         goto cleanup;
     }
     if (remove(filepath) != 0)
     {
-        status = ERROR_TABLE_DROP_CODE;
+        status = status_create(-1, ERROR_TABLE_DROP, LOG_ERROR);
         goto cleanup;
     }
-    status = SUCCESS_CODE;
-
+    status = status_create(0, SUCCESS, LOG_INFO);
 cleanup:
     if (filepath)
         free((void *)filepath);
     return (status);
 }
 
-t_status_code   tb_rename(char *old, char *new)
+t_status   tb_rename(char *old, char *new)
 {
-    const char      *old_filepath;
-    const char      *new_filepath;
-    t_status_code   status;
+    const char		*old_filepath;
+    const char		*new_filepath;
+    t_status		status;
 
     old_filepath = NULL;
     new_filepath = NULL;
@@ -59,11 +58,10 @@ t_status_code   tb_rename(char *old, char *new)
     RETURN_ON_ERROR(construct_table_path(new, DIR_DATA, &new_filepath));
     if (rename(old_filepath, new_filepath) != 0)
     {
-        status = ERROR_TABLE_RENAME_CODE;
+		status = status_create(-1, ERROR_TABLE_RENAME, LOG_ERROR);
         goto cleanup;
     }
-    status = SUCCESS_CODE;
-
+    status = status_create(0, SUCCESS, LOG_INFO);
 cleanup:
     if (old_filepath)
         free((void *)old_filepath);

@@ -4,7 +4,7 @@
 
 void    handle_incr(t_kv_store *store, int argc, char **argv)
 {
-    t_status_code   status;
+    t_status   status;
 
     if (argc != 2)
     {
@@ -12,12 +12,12 @@ void    handle_incr(t_kv_store *store, int argc, char **argv)
         return ;
     }
     status = kv_incr_by(store->table, argv[1], 1);
-    log_message(1, status);
+    status_log(1, status.code);
 }
 
 void    handle_decr(t_kv_store *store, int argc, char **argv)
 {
-    t_status_code   status;
+    t_status   status;
 
     if (argc != 2)
     {
@@ -25,12 +25,12 @@ void    handle_decr(t_kv_store *store, int argc, char **argv)
         return ;
     }
     status = kv_decr_by(store->table, argv[1], 1);
-    log_message(1, status);
+    status_log(1, status.code);
 }
 
 void    handle_incr_by(t_kv_store *store, int argc, char **argv)
 {
-    t_status_code	status;
+    t_status	status;
 	int				number;
     char			*endptr;
 
@@ -46,12 +46,12 @@ void    handle_incr_by(t_kv_store *store, int argc, char **argv)
 		return ;
 	}
     status = kv_incr_by(store->table, argv[1], number);
-    log_message(1, status);
+    status_log(1, status.code);
 }
 
 void    handle_decr_by(t_kv_store *store, int argc, char **argv)
 {
-    t_status_code	status;
+    t_status	status;
 	int				number;
     char			*endptr;
 
@@ -67,12 +67,12 @@ void    handle_decr_by(t_kv_store *store, int argc, char **argv)
 		return ;
 	}
     status = kv_decr_by(store->table, argv[1], number);
-    log_message(1, status);
+    status_log(1, status.code);
 }
 
 void	handle_append(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	status;
+	t_status	status;
 
 	if (argc != 3)
 	{
@@ -80,12 +80,12 @@ void	handle_append(t_kv_store *store, int argc, char **argv)
 		return ;
 	}
 	status = kv_append(store->table, argv[1], argv[2]);
-	log_message(1, status);
+	status_log(1, status.code);
 }
 
 void	handle_strlen(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	status;
+	t_status	status;
 	char			*value_len;
 
 	if (argc != 2)
@@ -94,9 +94,9 @@ void	handle_strlen(t_kv_store *store, int argc, char **argv)
 		return ;
 	}
 	status = kv_strlen(store->table, argv[1], &value_len);
-	if (status != SUCCESS_CODE)
+	if (status.code != SUCCESS)
 	{
-		log_message(1, status);
+		status_log(1, status.code);
 		return ;
 	}
 	logger(2, "%s", value_len);
@@ -106,7 +106,7 @@ void	handle_strlen(t_kv_store *store, int argc, char **argv)
 int kv_string_ops_commands(void)
 {
     size_t      i;
-    t_status_code   status;
+    t_status   status;
     static t_command    commands[] = {
         {
             .name = "incr",
@@ -156,7 +156,7 @@ int kv_string_ops_commands(void)
     while (i < sizeof(commands) / sizeof(commands[0]))
     {
         status = register_command(&commands[i]);
-        if (status != SUCCESS_CODE)
+        if (status.code != SUCCESS)
             return (1);
         i++;
     }

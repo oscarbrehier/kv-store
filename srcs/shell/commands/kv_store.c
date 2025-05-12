@@ -6,7 +6,7 @@
 void    handle_create(t_kv_store *store, int argc, char **argv)
 {
     (void)store;
-    t_status_code   status;
+    t_status   status;
 
     if (argc != 2)
     {
@@ -14,13 +14,13 @@ void    handle_create(t_kv_store *store, int argc, char **argv)
         return ;
     }
     status = tb_create(argv[1]);
-    log_message(1, status);
+    status_log(1, status.code);
 }
 
 void    handle_drop(t_kv_store *store, int argc, char **argv)
 {
     (void)store;
-    t_status_code   status;
+    t_status   status;
 
     if (argc != 2)
     {
@@ -28,13 +28,13 @@ void    handle_drop(t_kv_store *store, int argc, char **argv)
         return ;
     }
     status = tb_drop(argv[1]);
-    log_message(1, status);
+    status_log(1, status.code);
 }
 
 void    handle_rename(t_kv_store *store, int argc, char **argv)
 {
     (void)store;
-    t_status_code   status;
+    t_status   status;
 
     if (argc != 3)
     {
@@ -42,12 +42,12 @@ void    handle_rename(t_kv_store *store, int argc, char **argv)
         return ;
     }
     status = tb_rename(argv[1], argv[2]);
-    log_message(1, status);
+    status_log(1, status.code);
 }
 
 void	handle_load(t_kv_store *store, int argc, char **argv)
 {
-	t_status_code	status;
+	t_status	status;
 
 	if (argc != 2)
 	{
@@ -55,13 +55,13 @@ void	handle_load(t_kv_store *store, int argc, char **argv)
 		return ;
 	}
 	status = kv_load_file(store->table, argv[1]);
-	log_message(1, status);
+	status_log(1, status.code);
 }
 
 int	kv_store_commands(void)
 {
     size_t				i;
-    t_status_code		status;
+    t_status            status;
     static t_command	commands[] = {
         {
             .name = "list",
@@ -111,7 +111,7 @@ int	kv_store_commands(void)
     while (i < sizeof(commands) / sizeof(commands[0]))
     {
         status = register_command(&commands[i]);
-        if (status != SUCCESS_CODE)
+        if (status.code != SUCCESS)
 		{
 			return (1);
 		}

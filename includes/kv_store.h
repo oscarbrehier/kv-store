@@ -13,8 +13,8 @@ typedef struct s_kv_store
 	char		name[50];
 } t_kv_store;
 
-t_status_code	tb_create(char *filename);
-t_status_code   tb_drop(char *filename);
-t_status_code   tb_rename(char *old, char *new);
+t_status	tb_create(char *filename);
+t_status	tb_drop(char *filename);
+t_status	tb_rename(char *old, char *new);
 
 #endif

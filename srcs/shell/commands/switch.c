@@ -6,7 +6,7 @@ void    handle_switch(t_kv_store *store, int argc, char **argv)
 {
     const char		*file_path;
     t_kv_table		*temp;
-    t_status_code	status;
+    t_status	status;
 
     kv_init_table(&temp, 8);
     if (!temp)
@@ -26,9 +26,9 @@ void    handle_switch(t_kv_store *store, int argc, char **argv)
         return ;
     }
     status = kv_load_file(temp, file_path);
-    if (status != SUCCESS_CODE)
+    if (status.code != SUCCESS)
     {
-        log_message(1, status);
+        status_log(1, status.code);
         free((void *)file_path);
         kv_free_table(store->table);
         free(store);
@@ -38,6 +38,6 @@ void    handle_switch(t_kv_store *store, int argc, char **argv)
         free(store->table);
     store->table = temp;
     strcpy(store->name, argv[1]);
-    log_message(2, SUCCESS_CODE);
+    status_log(2, SUCCESS);
     free((void *)file_path);
 }

@@ -6,6 +6,7 @@
 #include "status_codes.h"
 
 typedef struct s_kv_store t_kv_store;
+typedef struct s_status t_status;
 
 #define FILE_HEADER "KVDB"
 
@@ -35,19 +36,19 @@ typedef struct s_kv_table
 } t_kv_table;
 
 unsigned int	hash(const char *key, size_t capacity);
-t_status_code	kv_init_table(t_kv_table **table, int capacity);
-t_status_code	kv_set(t_kv_table *table, const char *key, void *value, size_t value_size, t_kv_type type);
-t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, size_t value_size, t_kv_type type, int should_lock);
-t_status_code	kv_get(t_kv_table *table, const char *key, void **output, t_kv_type type);
-t_status_code	kv_resize(t_kv_table *table);
-t_status_code	kv_delete(t_kv_table *table, const char *key);
-t_status_code	kv_save_file(t_kv_table *table, const char *filename);
-t_status_code	kv_load_file(t_kv_table *table, const char *filename);
+t_status		kv_init_table(t_kv_table **table, int capacity);
+t_status		kv_set(t_kv_table *table, const char *key, void *value, size_t value_size, t_kv_type type);
+t_status		_kv_set_internal(t_kv_table *table, const char *key, void *value, size_t value_size, t_kv_type type, int should_lock);
+t_status		kv_get(t_kv_table *table, const char *key, void **output, t_kv_type type);
+t_status		kv_resize(t_kv_table *table);
+t_status		kv_delete(t_kv_table *table, const char *key);
+t_status		kv_save_file(t_kv_table *table, const char *filename);
+t_status		kv_load_file(t_kv_table *table, const char *filename);
 void 			kv_free_table(t_kv_table *table);
 
-t_status_code	kv_incr_by(t_kv_table *table, char *key, int increment);
-t_status_code	kv_decr_by(t_kv_table *table, char *key, int increment);
-t_status_code	kv_append(t_kv_table *table, char *key, char *value);
-t_status_code	kv_strlen(t_kv_table *table, char *key, char **output);
+t_status		kv_incr_by(t_kv_table *table, char *key, int increment);
+t_status		kv_decr_by(t_kv_table *table, char *key, int increment);
+t_status		kv_append(t_kv_table *table, char *key, char *value);
+t_status		kv_strlen(t_kv_table *table, char *key, char **output);
 
 #endif

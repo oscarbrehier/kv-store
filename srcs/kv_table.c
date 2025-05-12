@@ -15,19 +15,19 @@ unsigned int hash(const char *key, size_t capacity)
 	return ((hash % capacity + capacity) % capacity);
 }
 
-t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, size_t value_size, t_kv_type type, int should_lock)
+t_status	_kv_set_internal(t_kv_table *table, const char *key, void *value, size_t value_size, t_kv_type type, int should_lock)
 {
 	unsigned int	index;
 	t_kv_pair		*new_pair;
 	void			*update_value;
 	t_kv_pair		*current;
-	t_status_code	status;
+	t_status		status;
 
 	if (should_lock) pthread_rwlock_wrlock(&table->rwlock);
 	if (table->size >= table->capacity * 0.75)
 	{
 		status = kv_resize(table);
-		if (status != SUCCESS_CODE)
+		if (status.code != SUCCESS)
 		{
 			if (should_lock) pthread_rwlock_unlock(&table->rwlock);
 			return (status);
@@ -43,7 +43,8 @@ t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, 
 			if (!update_value)
 			{
 				if (should_lock) pthread_rwlock_unlock(&table->rwlock);
-				return (ERROR_MEMORY_REALLOCATION_CODE);
+				status = status_create(-1, ERROR_MEMORY_REALLOCATION, LOG_ERROR);
+				return (status);
 			}
 			memcpy(update_value, value, value_size);
 			((char *)update_value)[value_size] = '\0';
@@ -52,7 +53,8 @@ t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, 
 			current->value_size = value_size;
 			current->type = type;
 			if (should_lock) pthread_rwlock_unlock(&table->rwlock);
-			return (WARNING_KEY_EXISTS_CODE);
+			status = status_create(-1, WARNING_KEY_EXISTS, LOG_WARNING);
+			return (status);
 		}
 		current = current->next;
 	}
@@ -60,7 +62,8 @@ t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, 
 	if (!new_pair)
 	{
 		if (should_lock) pthread_rwlock_unlock(&table->rwlock);
-		return (ERROR_MEMORY_ALLOCATION_CODE);
+		status = status_create(-1, ERROR_MEMORY_ALLOCATION, LOG_ERROR);
+		return (status);
 	}
 	strncpy(new_pair->key, key, sizeof(new_pair->key) - 1);
 	new_pair->key[sizeof(new_pair->key) - 1] = '\0';
@@ -69,7 +72,8 @@ t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, 
 	{
 		free(new_pair);
 		if (should_lock) pthread_rwlock_unlock(&table->rwlock);
-		return (ERROR_MEMORY_ALLOCATION_CODE);
+		status = status_create(-1, ERROR_MEMORY_ALLOCATION, LOG_ERROR);
+		return (status);
 	}
 	memcpy(new_pair->value, value, value_size);
 	((char *)new_pair->value)[value_size] = '\0';
@@ -79,23 +83,24 @@ t_status_code	_kv_set_internal(t_kv_table *table, const char *key, void *value, 
 	table->buckets[index] = new_pair;
 	table->size++;
 	if (should_lock) pthread_rwlock_unlock(&table->rwlock);
-	return (SUCCESS_CODE);
+	status = status_create(0, SUCCESS, LOG_INFO);
+	return (status);
 }
 
-t_status_code	kv_set(t_kv_table *table, const char *key, void *value, size_t value_size, t_kv_type type)
+t_status	kv_set(t_kv_table *table, const char *key, void *value, size_t value_size, t_kv_type type)
 {
 	return _kv_set_internal(table, key, value, value_size, type, 1);
 }
 
-t_status_code	kv_get(t_kv_table *table, const char *key, void **output, t_kv_type type)
+t_status	kv_get(t_kv_table *table, const char *key, void **output, t_kv_type type)
 {
 	unsigned int 	index;
 	t_kv_pair 		*current;
-	t_status_code	status;
+	t_status		status;
 
 	pthread_rwlock_rdlock(&table->rwlock);
 	index = hash(key, table->capacity);
-	status = ERROR_KEY_NOT_FOUND_CODE;
+	status = status_create(-1, ERROR_KEY_NOT_FOUND, LOG_ERROR);
 	if (table->buckets[index] == NULL)
 	{
 		pthread_rwlock_unlock(&table->rwlock);
@@ -109,10 +114,10 @@ t_status_code	kv_get(t_kv_table *table, const char *key, void **output, t_kv_typ
 			if (current->type == type)
 			{
 				*output = current->value;
-				status = SUCCESS_CODE;
+				status = status_create(0, SUCCESS, LOG_INFO);
 			}
 			else
-				status = ERROR_VALUE_TYPE_MISMATCH_CODE;
+				status = status_create(0, ERROR_VALUE_TYPE_MISMATCH, LOG_ERROR);
 			break ; 
 		}
 		current = current->next;
@@ -121,16 +126,16 @@ t_status_code	kv_get(t_kv_table *table, const char *key, void **output, t_kv_typ
 	return (status);
 }
 
-t_status_code	kv_delete(t_kv_table *table, const char *key)
+t_status	kv_delete(t_kv_table *table, const char *key)
 {
 	unsigned int 	index;
 	t_kv_pair 		*current;
 	t_kv_pair 		*previous;
-	t_status_code	status;
+	t_status		status;
 
 	pthread_rwlock_wrlock(&table->rwlock);
 	index = hash(key, table->capacity);
-	status = ERROR_KEY_NOT_FOUND_CODE;
+	status = status_create(-1, ERROR_KEY_NOT_FOUND, LOG_ERROR);
 	if (table->buckets[index] == NULL)
 	{
 		pthread_rwlock_unlock(&table->rwlock);
@@ -148,7 +153,7 @@ t_status_code	kv_delete(t_kv_table *table, const char *key)
 				previous->next = current->next;
 			free(current->value);
 			free(current);
-			status = SUCCESS_CODE;
+			status = status_create(0, SUCCESS, LOG_INFO);
 			break ;
 		}
 		previous = current;
@@ -158,11 +163,16 @@ t_status_code	kv_delete(t_kv_table *table, const char *key)
 	return (status);
 };
 
-t_status_code	kv_init_table(t_kv_table **table, int capacity)
+t_status	kv_init_table(t_kv_table **table, int capacity)
 {
-    *table = malloc(sizeof(t_kv_table));
+	t_status	status;
+
+	*table = malloc(sizeof(t_kv_table));
     if (!*table)
-        return (ERROR_MEMORY_ALLOCATION_CODE);
+    {
+		status = status_create(-1, ERROR_MEMORY_ALLOCATION, LOG_ERROR);
+		return (status);
+	}
     (*table)->capacity = capacity;
     (*table)->size = 0;
     (*table)->buckets = calloc(capacity, sizeof(t_kv_pair *));
@@ -171,15 +181,18 @@ t_status_code	kv_init_table(t_kv_table **table, int capacity)
 		free((*table)->buckets);
 		free(*table);
 		*table = NULL;
-		return (ERROR_MUTEX_INIT_CODE);
+		status = status_create(-1, ERROR_INIT_TABLE, LOG_ERROR);
+		return (status);
 	}
     if (!(*table)->buckets)
     {
         free(*table);
 		*table = NULL;
-        return (ERROR_INIT_TABLE_CODE);
+		status = status_create(-1, ERROR_INIT_TABLE, LOG_ERROR);
+		return (status);
     }
-    return (SUCCESS_CODE);
+	status = status_create(0, SUCCESS, LOG_INFO);
+	return (status);
 }
 
 void    revert_resize(t_kv_table *table, t_kv_pair **old_buckets, int old_capacity)
@@ -205,14 +218,14 @@ void    revert_resize(t_kv_table *table, t_kv_pair **old_buckets, int old_capaci
     table->capacity = old_capacity;
 }
 
-t_status_code    kv_resize(t_kv_table *table)
+t_status    kv_resize(t_kv_table *table)
 {
     int             i;
     int             old_capacity;
     t_kv_pair       **old_buckets;
     t_kv_pair       *node;
     t_kv_pair       *tmp;
-    t_status_code    result;
+    t_status    	status;
 
     old_capacity = table->capacity;
     old_buckets = table->buckets;
@@ -223,7 +236,8 @@ t_status_code    kv_resize(t_kv_table *table)
     {
         table->buckets = old_buckets;
         table->capacity = old_capacity;
-        return (ERROR_MEMORY_ALLOCATION_CODE);
+        status = status_create(-1, ERROR_MEMORY_ALLOCATION, LOG_ERROR);
+		return (status);
     }
     i = 0;
     while (i < old_capacity)
@@ -231,11 +245,11 @@ t_status_code    kv_resize(t_kv_table *table)
         node = old_buckets[i];
         while (node)
         {
-            result = _kv_set_internal(table, node->key, node->value, node->value_size, node->type, 0);
-            if (result != SUCCESS_CODE)
+            status = _kv_set_internal(table, node->key, node->value, node->value_size, node->type, 0);
+            if (status.code != SUCCESS)
             {
                 revert_resize(table, old_buckets, old_capacity);
-                return (result);
+                return (status);
             }
             tmp = node;
             node = node->next;
@@ -245,7 +259,8 @@ t_status_code    kv_resize(t_kv_table *table)
         i++;
     }
     free(old_buckets);
-    return (SUCCESS_CODE);
+    status = status_create(0, SUCCESS, LOG_INFO);
+	return (status);
 }
 
 void kv_free_table(t_kv_table *table)

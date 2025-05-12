@@ -4,7 +4,7 @@
 #include "utils.h"
 #include "status_codes.h"
 
-#define RETURN_ON_ERROR(call) do { status = (call); if (status != SUCCESS_CODE) goto cleanup; } while (0)
+#define RETURN_ON_ERROR(call) do { status = (call); if (status.code != SUCCESS) goto cleanup; } while (0)
 
 void			read_file_into_buffer(const char *filename, char **content);
 void			ft_putstr(int fd, const char *str);
@@ -19,7 +19,7 @@ int				is_space(char c);
 int 			is_valid_key(const char *key);
 int             is_quote(char c);
 int				intlen(long int nbr);
-t_status_code	construct_table_path(char *filename, char *path, const char **output);
+t_status        construct_table_path(char *filename, char *path, const char **output);
 
 
 #endif

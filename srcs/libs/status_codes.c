@@ -2,46 +2,58 @@
 #include "status_codes.h"
 #include "libs.h"
 
-t_status	get_status(t_status_code code)
-{
-    size_t		i;
-	t_status	status = {UNKNOWN_CODE, "unkown error", 4};
-    struct {
-        t_status_code	code;
-        const char		*message;
-		int				log_level;
-    } status_table[] = {
-        #define X(name, code, message, log_level) {code, message, log_level},
-        STATUS_LIST
-        #undef X
-    };
+#include "status_codes.h"
 
-    i = 0;
-    while (i < sizeof(status_table) / sizeof(status_table[0]))
-    {
-        if (status_table[i].code == code)
-		{
-			status.code = status_table[i].code;
-			status.message = status_table[i].message;
-			status.log_level = status_table[i].log_level;
-			return (status);
-		}
-        i++;
-    }
-	return (status);
+char *status_messages[STATUS_CODE_COUNT] = {
+    [SUCCESS]                         = "OK",
+    [STATUS_UNKNOWN]                  = "unknown",
+
+    [ERROR_MEMORY_ALLOCATION]         = "failed to allocate memory",
+    [ERROR_MEMORY_REALLOCATION]       = "failed to reallocate memory",
+    [ERROR_MUTEX_INIT]                = "failed to initialize table mutex",
+
+    [ERROR_STR_INT]                   = "failed to convert string to integer",
+
+    [ERROR_FILE_OPEN]                 = "unable to open file or directory",
+    [ERROR_FILE_READ]                 = "unable to read file",
+    [ERROR_FILE_CLOSE]                = "unable to close file",
+    [ERROR_FILE_WRITE]                = "unable to write to file",
+    [ERROR_FILE_HEADER]               = "invalid key-value file header",
+
+    [ERROR_COMMAND_TABLE_MISSING]     = "command table has not been initialized",
+    [ERROR_COMMAND_STRUCT_NOT_FOUND]  = "command not found",
+    [ERROR_COMMAND_NAME_MISSING]      = "command name is missing",
+
+    [ERROR_INIT_TABLE]                = "failed to initialize table",
+    [ERROR_TABLE_MISSING]             = "the specified table could not be found",
+    [ERROR_TABLE_DROP]                = "failed to drop the specified table",
+    [ERROR_TABLE_RENAME]              = "failed to rename table",
+
+    [WARNING_KEY_EXISTS]              = "key already exists, value will be updated",
+    [ERROR_KEY_NOT_FOUND]             = "key not found",
+    [ERROR_VALUE_TYPE_MISMATCH]       = "value type mismatch",
+    [ERROR_READ_KEY]                  = "failed to read key from file",
+    [ERROR_READ_VAL]                  = "failed to read value from file",
+    [ERROR_READ_VAL_LEN]              = "failed to read value length from file",
+};
+
+void	status_log(int fd, t_status_code code, ...)
+{
+	va_list		args;
+
+	if (code == SUCCESS)
+		fd = 2;
+	va_start(args, code);
+	logger(fd, (char *)status_messages[code], args);
+	va_end(args);
 }
 
-#undef X
-
-void    log_message(int fd, t_status_code code, ...)
+t_status	status_create(int exit_code, t_status_code code, int log_level)
 {
-    t_status status;
-    va_list args;
+	t_status	status;
 
-    if (code == SUCCESS_CODE)
-        fd = 2;
-    va_start(args, code);
-	status = get_status(code);
-    logger(fd, (char *)status.message, args);
-    va_end(args);
+	status.code = exit_code;
+	status.code = code;
+	status.log_level = log_level;
+	return (status);
 }
