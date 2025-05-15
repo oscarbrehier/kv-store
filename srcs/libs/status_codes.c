@@ -35,6 +35,9 @@ char *status_messages[STATUS_CODE_COUNT] = {
     [ERROR_READ_KEY]                  = "failed to read key from file",
     [ERROR_READ_VAL]                  = "failed to read value from file",
     [ERROR_READ_VAL_LEN]              = "failed to read value length from file",
+
+    [AUTH_USERNAME_TAKEN]             = "this username is already taken",
+    [AUTH_INTERNAL_ERROR]             = "an error occured, please try again",
 };
 
 void	status_log(int fd, t_status_code code, ...)
@@ -52,7 +55,7 @@ t_status	status_create(int exit_code, t_status_code code, int log_level)
 {
 	t_status	status;
 
-	status.code = exit_code;
+	status.exit = exit_code;
 	status.code = code;
 	status.log_level = log_level;
 	return (status);

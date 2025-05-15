@@ -76,6 +76,9 @@ typedef enum e_status_code {
     ERROR_READ_VAL,
     ERROR_READ_VAL_LEN,
 
+    AUTH_USERNAME_TAKEN,
+    AUTH_INTERNAL_ERROR,
+
     STATUS_CODE_COUNT  // always keep this last for bounds checking
 } t_status_code;
 

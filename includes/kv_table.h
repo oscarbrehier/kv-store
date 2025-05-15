@@ -9,6 +9,10 @@ typedef struct s_kv_store t_kv_store;
 typedef struct s_status t_status;
 
 #define FILE_HEADER "KVDB"
+#define KEY_MIN_LEN 1
+#define KEY_MAX_LEN 256
+#define VAL_MIN_LEN 0
+#define VAL_MAX_LEN 1024 * 1024
 
 typedef enum s_kv_type {
 	INT,
