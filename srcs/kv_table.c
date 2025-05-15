@@ -17,6 +17,7 @@ unsigned int hash(const char *key, size_t capacity)
 
 t_status	_kv_set_internal(t_kv_table *table, const char *key, void *value, size_t value_size, t_kv_type type, int should_lock)
 {
+	size_t			alloc_size;
 	unsigned int	index;
 	t_kv_pair		*new_pair;
 	void			*update_value;
@@ -35,11 +36,12 @@ t_status	_kv_set_internal(t_kv_table *table, const char *key, void *value, size_
 	}
 	index = hash(key, table->capacity);
 	current = table->buckets[index];
+	alloc_size = value_size + (type == STRING ? 1 : 0);
 	while (current != NULL)
 	{
 		if (strcmp(current->key, key) == 0)
 		{
-			update_value = malloc(sizeof(char) * (value_size + 1));
+			update_value = malloc(sizeof(char) * alloc_size);
 			if (!update_value)
 			{
 				if (should_lock) pthread_rwlock_unlock(&table->rwlock);
@@ -47,7 +49,10 @@ t_status	_kv_set_internal(t_kv_table *table, const char *key, void *value, size_
 				return (status);
 			}
 			memcpy(update_value, value, value_size);
-			((char *)update_value)[value_size] = '\0';
+			if (type == STRING)
+			{
+				((char *)update_value)[value_size] = '\0';
+			}
 			free(current->value);
 			current->value = update_value;
 			current->value_size = value_size;
@@ -67,7 +72,7 @@ t_status	_kv_set_internal(t_kv_table *table, const char *key, void *value, size_
 	}
 	strncpy(new_pair->key, key, sizeof(new_pair->key) - 1);
 	new_pair->key[sizeof(new_pair->key) - 1] = '\0';
-	new_pair->value = malloc(sizeof(char) * (value_size + 1));
+	new_pair->value = malloc(sizeof(char) * alloc_size);
 	if (!new_pair->value)
 	{
 		free(new_pair);
@@ -76,7 +81,10 @@ t_status	_kv_set_internal(t_kv_table *table, const char *key, void *value, size_
 		return (status);
 	}
 	memcpy(new_pair->value, value, value_size);
-	((char *)new_pair->value)[value_size] = '\0';
+	if (type == STRING)
+	{
+		((char *)new_pair->value)[value_size] = '\0';
+	}
 	new_pair->value_size = value_size;
 	new_pair->type = type;
 	new_pair->next = table->buckets[index];
@@ -98,6 +106,10 @@ t_status	kv_get(t_kv_table *table, const char *key, void **output, t_kv_type typ
 	t_kv_pair 		*current;
 	t_status		status;
 
+	if (output == NULL)
+	{
+		return (status_create(-1, ERROR_NULL_POINTER, LOG_ERROR));
+	}
 	pthread_rwlock_rdlock(&table->rwlock);
 	index = hash(key, table->capacity);
 	status = status_create(-1, ERROR_KEY_NOT_FOUND, LOG_ERROR);

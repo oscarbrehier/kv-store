@@ -11,6 +11,7 @@ char *status_messages[STATUS_CODE_COUNT] = {
     [ERROR_MEMORY_ALLOCATION]         = "failed to allocate memory",
     [ERROR_MEMORY_REALLOCATION]       = "failed to reallocate memory",
     [ERROR_MUTEX_INIT]                = "failed to initialize table mutex",
+    [ERROR_NULL_POINTER]              = "null pointer received",
 
     [ERROR_STR_INT]                   = "failed to convert string to integer",
 
@@ -38,6 +39,7 @@ char *status_messages[STATUS_CODE_COUNT] = {
 
     [AUTH_USERNAME_TAKEN]             = "this username is already taken",
     [AUTH_INTERNAL_ERROR]             = "an error occured, please try again",
+    [AUTH_INVALID_CREDENTIALS]		  = "invalid username or password"
 };
 
 void	status_log(int fd, t_status_code code, ...)

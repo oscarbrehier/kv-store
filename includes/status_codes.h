@@ -13,6 +13,7 @@
 #define LOG_WARNING 3
 #define LOG_ERROR 4
 #define LOG_FATAL 5
+#define LOG_NOLOG 6
 
 // #define SUCCESS "OK"
 // #define ERROR_UNKNOWN "unknown"
@@ -51,6 +52,7 @@ typedef enum e_status_code {
     ERROR_MEMORY_ALLOCATION,
     ERROR_MEMORY_REALLOCATION,
     ERROR_MUTEX_INIT,
+    ERROR_NULL_POINTER,
 
     ERROR_STR_INT,
 
@@ -78,6 +80,7 @@ typedef enum e_status_code {
 
     AUTH_USERNAME_TAKEN,
     AUTH_INTERNAL_ERROR,
+    AUTH_INVALID_CREDENTIALS,
 
     STATUS_CODE_COUNT  // always keep this last for bounds checking
 } t_status_code;

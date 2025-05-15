@@ -44,7 +44,7 @@ t_status	kv_save_file(t_kv_table *table, const char *filename)
 		while (current != NULL)
 		{
 			key_len = ft_strlen(current->key);
-			val_len = ft_strlen(current->value);
+			val_len = current->value_size;
 			if (write(fd, &key_len, sizeof(uint32_t)) != sizeof(uint32_t) ||
 				write(fd, current->key, key_len) != (ssize_t)key_len ||
 				write(fd, &val_len, sizeof(uint32_t)) != sizeof(uint32_t) ||

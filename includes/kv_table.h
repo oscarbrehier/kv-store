@@ -18,6 +18,8 @@ typedef enum s_kv_type {
 	INT,
 	FLOAT,
 	STRING,
+	BINARY,
+	AUTH_DIGEST,
 	COMMAND,
 	UNKNOWN
 } t_kv_type;
