@@ -102,6 +102,7 @@ t_status	kv_set(t_kv_table *table, const char *key, void *value, size_t value_si
 
 t_status	kv_get(t_kv_table *table, const char *key, void **output, t_kv_type type)
 {
+	(void)type;
 	unsigned int 	index;
 	t_kv_pair 		*current;
 	t_status		status;
@@ -123,13 +124,15 @@ t_status	kv_get(t_kv_table *table, const char *key, void **output, t_kv_type typ
 	{
 		if (strcmp(current->key, key) == 0)
 		{
-			if (current->type == type)
-			{
-				*output = current->value;
-				status = status_create(0, SUCCESS, LOG_INFO);
-			}
-			else
-				status = status_create(0, ERROR_VALUE_TYPE_MISMATCH, LOG_ERROR);
+			// if (current->type == type)
+			// {
+			// 	*output = current->value;
+			// 	status = status_create(0, SUCCESS, LOG_INFO);
+			// }
+			// else
+			// 	status = status_create(0, ERROR_VALUE_TYPE_MISMATCH, LOG_ERROR);
+			*output = current->value;
+			status = status_create(0, SUCCESS, LOG_INFO);
 			break ; 
 		}
 		current = current->next;

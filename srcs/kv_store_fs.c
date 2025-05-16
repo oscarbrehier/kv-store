@@ -116,7 +116,7 @@ t_status	kv_load_file(t_kv_table *table, const char *filename)
 			status = status_create(-1, ERROR_READ_VAL_LEN, LOG_ERROR);
 			return (status);
 		}
-		val = malloc(val_len + 1);
+		val = malloc(val_len);
 		if (!val)
 		{
 			close(fd);
@@ -130,8 +130,7 @@ t_status	kv_load_file(t_kv_table *table, const char *filename)
 			status = status_create(-1, ERROR_READ_VAL, LOG_ERROR);
 			return (status);
 		}
-		val[val_len] = '\0';
-		status = _kv_set_internal(table, key, val, ft_strlen(val), STRING, 0);
+		status = _kv_set_internal(table, key, val, val_len, BINARY, 0);
 		if (status.code != SUCCESS)
 		{
 			close(fd);
