@@ -124,14 +124,11 @@ t_status	kv_get(t_kv_table *table, const char *key, void **output, t_kv_type typ
 	{
 		if (strcmp(current->key, key) == 0)
 		{
-			// if (current->type == type)
-			// {
-			// 	*output = current->value;
-			// 	status = status_create(0, SUCCESS, LOG_INFO);
-			// }
-			// else
-			// 	status = status_create(0, ERROR_VALUE_TYPE_MISMATCH, LOG_ERROR);
 			*output = current->value;
+			// if (type == STRING)
+			// {
+			// 	((char *)*output)[current->value_size] = '\0';
+			// }
 			status = status_create(0, SUCCESS, LOG_INFO);
 			break ; 
 		}

@@ -77,6 +77,7 @@ typedef enum e_status_code {
     ERROR_READ_KEY,
     ERROR_READ_VAL,
     ERROR_READ_VAL_LEN,
+    ERROR_READ_TYPE,
 
     AUTH_USERNAME_TAKEN,
     AUTH_INTERNAL_ERROR,

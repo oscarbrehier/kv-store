@@ -30,11 +30,13 @@ t_status	kv_save_file(t_kv_table *table, const char *filename)
 	fd = open(filename, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd < 0)
 	{
+		pthread_rwlock_unlock(&table->rwlock);
 		status = status_create(-1, ERROR_FILE_OPEN, LOG_ERROR);
 		return (status);
 	}
 	if (!(write_header(fd)))
 	{
+		pthread_rwlock_unlock(&table->rwlock);
 		status = status_create(-1, ERROR_FILE_WRITE, LOG_ERROR);
 		return (status);
 	}
@@ -48,7 +50,9 @@ t_status	kv_save_file(t_kv_table *table, const char *filename)
 			if (write(fd, &key_len, sizeof(uint32_t)) != sizeof(uint32_t) ||
 				write(fd, current->key, key_len) != (ssize_t)key_len ||
 				write(fd, &val_len, sizeof(uint32_t)) != sizeof(uint32_t) ||
-				write(fd, current->value, val_len) != (ssize_t)val_len)
+				write(fd, current->value, val_len) != (ssize_t)val_len ||
+				write(fd, &current->type, sizeof(t_kv_type)) != sizeof(t_kv_type)
+			)
 			{
 				close(fd);
 				pthread_rwlock_unlock(&table->rwlock);
@@ -73,6 +77,7 @@ t_status	kv_load_file(t_kv_table *table, const char *filename)
 	char			*key;
 	char			*val;
 	char			header[4];
+	t_kv_type		type;
 	t_status		status;
 
 	pthread_rwlock_wrlock(&table->rwlock);
@@ -104,6 +109,7 @@ t_status	kv_load_file(t_kv_table *table, const char *filename)
 		if (read(fd, key, key_len) != (ssize_t)key_len)
 		{
 			close(fd);
+			free(key);
 			pthread_rwlock_unlock(&table->rwlock);
 			status = status_create(-1, ERROR_READ_KEY, LOG_ERROR);
 			return (status);
@@ -112,14 +118,16 @@ t_status	kv_load_file(t_kv_table *table, const char *filename)
 		if (read(fd, &val_len, sizeof(uint32_t)) != sizeof(uint32_t))
 		{
 			close(fd);
+			free(key);
 			pthread_rwlock_unlock(&table->rwlock);
 			status = status_create(-1, ERROR_READ_VAL_LEN, LOG_ERROR);
 			return (status);
 		}
-		val = malloc(val_len);
+		val = malloc(val_len + 1);
 		if (!val)
 		{
 			close(fd);
+			free(key);
 			pthread_rwlock_unlock(&table->rwlock);
 			status = status_create(-1, ERROR_MEMORY_ALLOCATION, LOG_ERROR);
 			return (status);
@@ -127,13 +135,30 @@ t_status	kv_load_file(t_kv_table *table, const char *filename)
 		if (read(fd, val, val_len) != (ssize_t)val_len)
 		{
 			close(fd);
+			free(key);
+			free(val);
 			status = status_create(-1, ERROR_READ_VAL, LOG_ERROR);
+			pthread_rwlock_unlock(&table->rwlock);
 			return (status);
 		}
-		status = _kv_set_internal(table, key, val, val_len, BINARY, 0);
+		if (read(fd, &type, sizeof(t_kv_type)) != sizeof(t_kv_type))
+		{
+			close(fd);
+			free(key);
+			free(val);
+			pthread_rwlock_unlock(&table->rwlock);
+			return (status_create(-1, ERROR_READ_TYPE, LOG_ERROR));
+		}
+		if (type == STRING)
+		{
+			val[val_len] = '\0';
+		}
+		status = _kv_set_internal(table, key, val, val_len, type, 0);
 		if (status.code != SUCCESS)
 		{
 			close(fd);
+			free(key);
+			free(val);
 			pthread_rwlock_unlock(&table->rwlock);
 			return (status);
 		}

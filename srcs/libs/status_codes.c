@@ -36,6 +36,7 @@ char *status_messages[STATUS_CODE_COUNT] = {
     [ERROR_READ_KEY]                  = "failed to read key from file",
     [ERROR_READ_VAL]                  = "failed to read value from file",
     [ERROR_READ_VAL_LEN]              = "failed to read value length from file",
+    [ERROR_READ_TYPE]                 = "failed to read value type",
 
     [AUTH_USERNAME_TAKEN]             = "this username is already taken",
     [AUTH_INTERNAL_ERROR]             = "an error occured, please try again",
